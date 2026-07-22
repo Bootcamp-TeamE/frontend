@@ -1,1 +1,37 @@
+@import url('https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable.min.css');
 @import "tailwindcss";
+
+@theme {
+  --font-sans: "Pretendard Variable", Pretendard, -apple-system, BlinkMacSystemFont,
+    system-ui, "Segoe UI", Roboto, "Apple SD Gothic Neo", "Noto Sans KR", sans-serif;
+
+  /* 감귤 오렌지 = 마감할인 브랜드 */
+  --color-primary-50: #fff4ef;
+  --color-primary-100: #ffe6da;
+  --color-primary-200: #ffc9b0;
+  --color-primary-300: #fba47d;
+  --color-primary-400: #f67e51;
+  --color-primary-500: #f26430;
+  --color-primary-600: #e24e1b;
+  --color-primary-700: #bc3c15;
+  --color-primary-800: #963218;
+  --color-primary-900: #7a2c18;
+  --color-primary: #f26430;
+
+  --color-success-50: #ecfdf3;
+  --color-success: #15a34a;
+
+  --color-danger-50: #fef2f2;
+  --color-danger: #dc2626;
+
+  --radius-card: 0.875rem;
+}
+
+@layer base {
+  html {
+    -webkit-tap-highlight-color: transparent;
+  }
+  body {
+    @apply bg-stone-100 font-sans text-stone-900 antialiased;
+  }
+}
