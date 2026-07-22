@@ -20,7 +20,7 @@ export function useOrder(id: number | undefined) {
 }
 
 // 예약·결제·취소·수령은 재고/주문 상태를 바꾸므로 관련 목록을 넓게 무효화한다.
-function useOrderMutation<TArgs>(fn: (args: TArgs) => Promise<unknown>) {
+function useOrderMutation<TArgs, TData>(fn: (args: TArgs) => Promise<TData>) {
   const queryClient = useQueryClient()
   return useMutation({
     mutationFn: fn,

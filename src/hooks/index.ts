@@ -1,4 +1,5 @@
 export * from './queryKeys'
+export * from './useNow'
 export * from './useCatalog'
 export * from './useSales'
 export * from './useStores'
