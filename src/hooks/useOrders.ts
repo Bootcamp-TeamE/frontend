@@ -19,6 +19,16 @@ export function useOrder(id: number | undefined) {
   })
 }
 
+// 점주 QR 확인: 픽업번호/토큰으로 주문 조회 (제출 시에만 실행)
+export function useLookupOrder(code: string, enabled: boolean) {
+  return useQuery({
+    queryKey: qk.lookupOrder(code),
+    queryFn: () => ordersApi.lookupOrder(code),
+    enabled: enabled && code.trim().length > 0,
+    retry: false,
+  })
+}
+
 // 예약·결제·취소·수령은 재고/주문 상태를 바꾸므로 관련 목록을 넓게 무효화한다.
 function useOrderMutation<TArgs, TData>(fn: (args: TArgs) => Promise<TData>) {
   const queryClient = useQueryClient()

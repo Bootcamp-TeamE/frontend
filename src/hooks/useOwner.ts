@@ -12,6 +12,15 @@ export function useDashboard(ownerId: number) {
   })
 }
 
+export function useMyStore(ownerId: number) {
+  return useQuery({
+    queryKey: qk.myStore(ownerId),
+    queryFn: () => ownerApi.getMyStore(ownerId),
+    enabled: !!ownerId,
+    retry: false,
+  })
+}
+
 // 주문 커밋(예약·결제·취소·수령) 시 앱 프로세스가 발행 → 대시보드 스냅샷 재조회.
 export function useDashboardStream(ownerId: number) {
   const queryClient = useQueryClient()

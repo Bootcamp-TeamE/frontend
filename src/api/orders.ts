@@ -16,6 +16,12 @@ export async function getOrder(id: number): Promise<Order> {
   return data
 }
 
+// 점주 QR 확인: 픽업번호 또는 QR 토큰으로 주문 조회
+export async function lookupOrder(code: string): Promise<Order> {
+  const { data } = await api.get<Order>('/orders/lookup', { params: { code } })
+  return data
+}
+
 export async function payOrder(id: number): Promise<Order> {
   const { data } = await api.post<Order>(`/orders/${id}/pay`)
   return data

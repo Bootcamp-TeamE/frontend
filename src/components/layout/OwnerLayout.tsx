@@ -11,10 +11,13 @@ const navItems = [
 
 export function OwnerLayout() {
   return (
-    <div className="min-h-screen bg-stone-100">
-      <header className="border-b border-stone-200 bg-white">
+    <div className="min-h-screen bg-paper">
+      <header className="sticky top-0 z-20 border-b border-line bg-surface/95 backdrop-blur">
         <div className="mx-auto flex max-w-6xl items-center gap-6 px-6 py-3">
-          <span className="text-lg font-extrabold text-primary">마감할인 점주센터</span>
+          <span className="flex items-center gap-2 text-lg font-extrabold text-primary">
+            <span className="h-2.5 w-2.5 rounded-full bg-primary" />
+            마감할인 점주센터
+          </span>
           <nav className="flex items-center gap-1">
             {navItems.map(({ to, label }) => (
               <NavLink
@@ -25,7 +28,7 @@ export function OwnerLayout() {
                     'rounded-lg px-3 py-1.5 text-sm font-semibold transition-colors',
                     isActive
                       ? 'bg-primary-50 text-primary-700'
-                      : 'text-stone-500 hover:bg-stone-100',
+                      : 'text-ink-400 hover:bg-paper',
                   )
                 }
               >
@@ -35,7 +38,7 @@ export function OwnerLayout() {
           </nav>
         </div>
       </header>
-      <main className="mx-auto max-w-6xl px-6 py-6">
+      <main className="mx-auto max-w-6xl px-6 py-8">
         <Outlet />
       </main>
       <DevRoleSwitcher />

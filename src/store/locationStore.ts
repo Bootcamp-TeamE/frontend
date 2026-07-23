@@ -1,6 +1,6 @@
 import { create } from 'zustand'
 
-// 탐색 기준 위치. 온보딩/GPS 연동 전 기본값 = 데모 데이터가 많은 서울 시청 근처.
+// 탐색 기준 위치. 온보딩/GPS 연동 전 기본값 = 데모 데이터가 많은 회현동(남대문 일대).
 interface LocationState {
   lat: number
   lng: number
@@ -9,8 +9,8 @@ interface LocationState {
 }
 
 export const useLocationStore = create<LocationState>((set) => ({
-  lat: 37.5665,
-  lng: 126.978,
-  label: '서울 시청 근처',
+  lat: 37.5596,
+  lng: 126.9779,
+  label: '회현동',
   setLocation: (lat, lng, label = '현재 위치') => set({ lat, lng, label }),
 }))
