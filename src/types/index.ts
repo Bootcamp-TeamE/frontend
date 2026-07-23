@@ -136,6 +136,7 @@ export interface StoreCreate {
   lng: number
   market_id?: number | null
   address?: string | null
+  owner_id?: number | null
 }
 
 export interface SaleCreate {

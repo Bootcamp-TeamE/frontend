@@ -16,7 +16,7 @@ export function OwnerStorePage() {
   const update = useUpdateStore()
 
   const [name, setName] = useState('')
-  const [category, setCategory] = useState('bakery')
+  const [category, setCategory] = useState('')
   const [address, setAddress] = useState('')
   const [saved, setSaved] = useState(false)
 
@@ -27,6 +27,12 @@ export function OwnerStorePage() {
     setAddress(store.address ?? '')
   }, [store])
 
+  // 신규 등록 시 기본 카테고리를 실제 목록의 첫 항목으로(존재하지 않는 코드로 422 나는 것 방지).
+  useEffect(() => {
+    if (store || categories.length === 0) return
+    setCategory((c) => (categories.some((x) => x.code === c) ? c : categories[0].code))
+  }, [store, categories])
+
   if (isLoading) return <LoadingScreen />
 
   const save = () => {
@@ -35,7 +41,11 @@ export function OwnerStorePage() {
     if (store) {
       update.mutate({ id: store.id, payload }, { onSuccess: () => setSaved(true) })
     } else {
-      create.mutate({ ...payload, lat, lng, market_id: 1 }, { onSuccess: () => setSaved(true) })
+      // owner_id를 실어야 등록 매장이 점주에 귀속돼 대시보드에 잡힌다(1계정=1매장).
+      create.mutate(
+        { ...payload, lat, lng, owner_id: ownerId },
+        { onSuccess: () => setSaved(true) },
+      )
     }
   }
 
