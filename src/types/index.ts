@@ -42,6 +42,10 @@ export interface Store {
   address: string | null
   lat: number
   lng: number
+  // ── 디자인(매장 상세)에서 필요로 하는 선택 필드 ──
+  distance_m?: number
+  rating?: number
+  review_count?: number
 }
 
 export interface Sale {
@@ -58,6 +62,14 @@ export interface Sale {
   deadline_at: string
   status: SaleStatus
   discount_rate: number
+  // ── 디자인(홈 리스트·지도·상세)에서 필요로 하는 선택 필드 ──
+  // 백엔드 목록/검색 응답에 조인해 내려주면 그대로 사용됨. 없으면 화면에서 graceful 처리.
+  store_name?: string
+  store_distance_m?: number
+  lat?: number
+  lng?: number
+  /** 픽업 가능 시간대 표기 "오늘 18:00~21:00" */
+  pickup_window?: string
 }
 
 export interface Order {

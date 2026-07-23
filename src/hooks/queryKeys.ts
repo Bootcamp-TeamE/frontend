@@ -8,6 +8,7 @@ export const qk = {
     ['search-sales', p] as const,
   reach: (p: { lat: number; lng: number; category: string }) => ['reach', p] as const,
   store: (id: number) => ['store', id] as const,
+  storeSales: (id: number) => ['store-sales', id] as const,
   markets: (p: { lat: number; lng: number; radius: number }) => ['markets', p] as const,
   market: (id: number) => ['market', id] as const,
   marketStores: (id: number) => ['market-stores', id] as const,
@@ -18,4 +19,6 @@ export const qk = {
   unreadCount: (userId: number) => ['unread-count', userId] as const,
   subscriptions: (userId: number) => ['subscriptions', userId] as const,
   dashboard: (ownerId: number) => ['dashboard', ownerId] as const,
+  myStore: (ownerId: number) => ['my-store', ownerId] as const,
+  lookupOrder: (code: string) => ['lookup-order', code] as const,
 }

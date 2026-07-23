@@ -1,30 +1,60 @@
-@import url('https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable.min.css');
+@import "pretendard/dist/web/variable/pretendardvariable.css";
 @import "tailwindcss";
 
+/*
+ * 마감할인 — 디자인 토큰
+ * 기준: docs/design_handoff_deal_app/README.md (Design Tokens)
+ * 프라이머리 = 딥 파인 그린 #1F5140 (사내 셋업 문서의 감귤 오렌지는 폐기, 그린으로 확정)
+ * 뉴트럴 = 웜 그레이(살짝 베이지 톤) → tailwind stone 계열 + 아래 페이퍼/라인 토큰 병용
+ */
 @theme {
   --font-sans: "Pretendard Variable", Pretendard, -apple-system, BlinkMacSystemFont,
     system-ui, "Segoe UI", Roboto, "Apple SD Gothic Neo", "Noto Sans KR", sans-serif;
+  --font-mono: ui-monospace, SFMono-Regular, "SF Mono", Menlo, Consolas, monospace;
 
-  /* 감귤 오렌지 = 마감할인 브랜드 */
-  --color-primary-50: #fff4ef;
-  --color-primary-100: #ffe6da;
-  --color-primary-200: #ffc9b0;
-  --color-primary-300: #fba47d;
-  --color-primary-400: #f67e51;
-  --color-primary-500: #f26430;
-  --color-primary-600: #e24e1b;
-  --color-primary-700: #bc3c15;
-  --color-primary-800: #963218;
-  --color-primary-900: #7a2c18;
-  --color-primary: #f26430;
+  /* Primary — 딥 파인 그린 램프 */
+  --color-primary-50: #e7efe9;
+  --color-primary-100: #d4e2d8;
+  --color-primary-200: #a9c4b3;
+  --color-primary-300: #7ba692;
+  --color-primary-400: #4c8069;
+  --color-primary-500: #276451;
+  --color-primary-600: #1f5140;
+  --color-primary-700: #1f5140;
+  --color-primary-800: #163a2e;
+  --color-primary-900: #10281f;
+  --color-primary: #1f5140;
 
-  --color-success-50: #ecfdf3;
-  --color-success: #15a34a;
+  /* 웜 페이퍼/서피스/라인 */
+  --color-paper: #f7f4ef;
+  --color-surface: #ffffff;
+  --color-line: #ece7dd;
+  --color-line-soft: #f1ede5;
+  --color-line-strong: #e7e2d9;
 
-  --color-danger-50: #fef2f2;
-  --color-danger: #dc2626;
+  /* Ink — 웜 블랙 텍스트 램프 */
+  --color-ink-900: #1b1a17;
+  --color-ink-700: #47423b;
+  --color-ink-600: #5c5750;
+  --color-ink-500: #726c62;
+  --color-ink-400: #8a8478;
+  --color-ink-300: #a39d92;
 
-  --radius-card: 0.875rem;
+  --color-success-50: #e7efe9;
+  --color-success: #1f5140;
+
+  --color-danger-50: #fbece9;
+  --color-danger: #c0392b;
+
+  --color-info: #2f6df0;
+
+  --radius-card: 1rem; /* 16px */
+  --radius-card-lg: 1.25rem; /* 20px 큰 카드 */
+  --radius-pill: 9999px; /* 칩/필터 pill */
+  --radius-thumb: 0.75rem; /* 12px 썸네일 */
+
+  --shadow-overlay: 0 8px 28px rgba(20, 19, 15, 0.2);
+  --shadow-chip: 0 2px 8px rgba(20, 19, 15, 0.1);
 }
 
 @layer base {
@@ -32,6 +62,28 @@
     -webkit-tap-highlight-color: transparent;
   }
   body {
-    @apply bg-stone-100 font-sans text-stone-900 antialiased;
+    @apply bg-paper font-sans text-ink-900 antialiased;
+  }
+}
+
+@layer utilities {
+  /* 가격·카운트다운·픽업번호 등 숫자 정렬 */
+  .tnum {
+    font-variant-numeric: tabular-nums;
+  }
+  .no-scrollbar {
+    scrollbar-width: none;
+    -ms-overflow-style: none;
+  }
+  .no-scrollbar::-webkit-scrollbar {
+    display: none;
+  }
+  /* 이미지 없는 카테고리 썸네일 — 대각 줄무늬 질감(모노 라벨과 함께) */
+  .thumb-stripe {
+    background-image: repeating-linear-gradient(
+      135deg,
+      rgba(255, 255, 255, 0.28) 0 1px,
+      transparent 1px 9px
+    );
   }
 }

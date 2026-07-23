@@ -25,20 +25,31 @@ export function BottomTabBar() {
             end={end}
             className={({ isActive }) =>
               cn(
-                'flex flex-col items-center gap-0.5 py-2 text-[11px] font-medium transition-colors',
-                isActive ? 'text-primary' : 'text-stone-400',
+                'flex flex-col items-center gap-0.5 pt-2 pb-1.5 text-[11px] font-semibold transition-colors',
+                isActive ? 'text-primary' : 'text-ink-400',
               )
             }
           >
-            <span className="relative">
-              <Icon className="h-6 w-6" />
-              {badge && unread > 0 && (
-                <span className="absolute -right-1.5 -top-1 min-w-4 rounded-full bg-danger px-1 text-[10px] font-bold leading-4 text-white">
-                  {unread > 99 ? '99+' : unread}
+            {({ isActive }) => (
+              <>
+                <span className="relative">
+                  <Icon className="h-6 w-6" />
+                  {badge && unread > 0 && (
+                    <span className="absolute -right-1.5 -top-1 min-w-4 rounded-full bg-danger px-1 text-[10px] font-bold leading-4 text-white">
+                      {unread > 99 ? '99+' : unread}
+                    </span>
+                  )}
                 </span>
-              )}
-            </span>
-            {label}
+                {label}
+                {/* 활성 탭 하단 점 (README: 활성색 + 하단 5px 점) */}
+                <span
+                  className={cn(
+                    'mt-0.5 h-[5px] w-[5px] rounded-full transition-colors',
+                    isActive ? 'bg-primary' : 'bg-transparent',
+                  )}
+                />
+              </>
+            )}
           </NavLink>
         ))}
       </div>

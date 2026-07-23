@@ -56,3 +56,73 @@ export function LocationIcon({ className }: IconProps) {
     </svg>
   )
 }
+
+export function SearchIcon({ className }: IconProps) {
+  return (
+    <svg className={className ?? base} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2} strokeLinecap="round" strokeLinejoin="round">
+      <circle cx="11" cy="11" r="7" />
+      <path d="m20 20-3.2-3.2" />
+    </svg>
+  )
+}
+
+export function HeartIcon({ className, filled = false }: IconProps & { filled?: boolean }) {
+  return (
+    <svg className={className ?? base} viewBox="0 0 24 24" fill={filled ? 'currentColor' : 'none'} stroke="currentColor" strokeWidth={2} strokeLinecap="round" strokeLinejoin="round">
+      <path d="M12 20.5S3.5 15 3.5 8.9A4.4 4.4 0 0 1 12 6.9a4.4 4.4 0 0 1 8.5 2A9 9 0 0 1 12 20.5z" />
+    </svg>
+  )
+}
+
+export function ShareIcon({ className }: IconProps) {
+  return (
+    <svg className={className ?? base} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2} strokeLinecap="round" strokeLinejoin="round">
+      <path d="M12 3v13" />
+      <path d="m7 8 5-5 5 5" />
+      <path d="M5 14v5a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1v-5" />
+    </svg>
+  )
+}
+
+export function CheckIcon({ className }: IconProps) {
+  return (
+    <svg className={className ?? base} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2.5} strokeLinecap="round" strokeLinejoin="round">
+      <path d="m5 12.5 4.5 4.5L19 6.5" />
+    </svg>
+  )
+}
+
+export function ChevronRightIcon({ className }: IconProps) {
+  return (
+    <svg className={className ?? base} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2} strokeLinecap="round" strokeLinejoin="round">
+      <path d="m9 6 6 6-6 6" />
+    </svg>
+  )
+}
+
+export function StarIcon({ className }: IconProps) {
+  return (
+    <svg className={className ?? base} viewBox="0 0 24 24" fill="currentColor">
+      <path d="M12 2.5l2.9 5.9 6.5.95-4.7 4.6 1.1 6.5L12 17.9 6.1 21l1.1-6.5-4.7-4.6 6.5-.95z" />
+    </svg>
+  )
+}
+
+export function ClockIcon({ className }: IconProps) {
+  return (
+    <svg className={className ?? base} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2} strokeLinecap="round" strokeLinejoin="round">
+      <circle cx="12" cy="12" r="9" />
+      <path d="M12 7v5l3 2" />
+    </svg>
+  )
+}
+
+export function BoxIcon({ className }: IconProps) {
+  return (
+    <svg className={className ?? base} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2} strokeLinecap="round" strokeLinejoin="round">
+      <path d="M3 8l9-4 9 4-9 4-9-4z" />
+      <path d="M3 8v8l9 4 9-4V8" />
+      <path d="M12 12v8" />
+    </svg>
+  )
+}
