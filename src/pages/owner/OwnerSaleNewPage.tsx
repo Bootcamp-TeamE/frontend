@@ -19,7 +19,7 @@ export function OwnerSaleNewPage() {
 
   const [title, setTitle] = useState('')
   const [category, setCategory] = useState('')
-  const [unit, setUnit] = useState('ea')
+  const [unit, setUnit] = useState('') // '' = 매장 카테고리 기본 단위 상속
   const [normal, setNormal] = useState('')
   const [salePrice, setSalePrice] = useState('')
   const [qty, setQty] = useState('')
@@ -52,7 +52,7 @@ export function OwnerSaleNewPage() {
       {
         title,
         category_code: category || store.category_code,
-        unit_code: unit,
+        unit_code: unit || undefined, // 미선택 시 백엔드가 카테고리 기본 단위 상속
         normal_price: n,
         sale_price: s,
         total_quantity: Number(qty),
@@ -91,6 +91,7 @@ export function OwnerSaleNewPage() {
           </Field>
           <Field label="단위">
             <select value={unit} onChange={(e) => setUnit(e.target.value)} className={inputCls}>
+              <option value="">매장 기본 단위</option>
               {units.map((u) => (
                 <option key={u.code} value={u.code}>
                   {u.name_ko}

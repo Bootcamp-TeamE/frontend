@@ -73,15 +73,8 @@ export function StoreDetailPage() {
     <>
       <TopBar title="매장 상세" />
 
-      {/* 상단 이미지 200px */}
-      <div
-        className={cn(
-          'flex h-[200px] items-center justify-center text-2xl font-extrabold',
-          categoryTint(store.category_code),
-        )}
-      >
-        {store.name}
-      </div>
+      {/* 상단 이미지 자리 200px — 사진 없어 카테고리 톤+줄무늬 질감으로 대체 */}
+      <div className={cn('thumb-stripe h-[200px]', categoryTint(store.category_code))} />
 
       <div className="px-5">
         <div className="mt-4 flex items-start justify-between gap-3">

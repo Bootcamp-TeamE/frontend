@@ -1,8 +1,9 @@
 import { useState } from 'react'
-import { useNavigate, useParams } from 'react-router-dom'
+import { Link, useNavigate, useParams } from 'react-router-dom'
 import {
   Button,
   BoxIcon,
+  ChevronRightIcon,
   ClockIcon,
   EmptyState,
   HeartIcon,
@@ -122,11 +123,17 @@ export function SaleDetailPage() {
           {catLabel}
         </div>
 
-        {/* 상점명·거리 */}
-        <p className="mt-4 text-[13px] text-ink-600">
-          {sale.store_name ?? store?.name ?? ''}
+        {/* 상점명·거리 — 매장 상세로 이동 */}
+        <Link
+          to={`/stores/${sale.store_id}`}
+          className="mt-4 flex items-center gap-1 text-[13px] text-ink-600"
+        >
+          <span className="font-semibold text-ink-900">
+            {sale.store_name ?? store?.name ?? '매장'}
+          </span>
           {dist && <span className="text-ink-400"> · {dist}</span>}
-        </p>
+          <ChevronRightIcon className="h-4 w-4 text-ink-300" />
+        </Link>
 
         {/* 상품명 */}
         <h1 className="mt-1 text-[23px] font-bold tracking-[-0.5px] text-ink-900">{sale.title}</h1>
