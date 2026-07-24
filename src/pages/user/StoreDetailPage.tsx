@@ -1,15 +1,21 @@
-import { useState } from 'react'
 import { Link, useNavigate, useParams } from 'react-router-dom'
 import {
   Button,
   EmptyState,
   HeartIcon,
   LoadingScreen,
-  ShareIcon,
   StarIcon,
   TopBar,
 } from '../../components'
-import { useCategories, useStore, useStoreSales, useUnits } from '../../hooks'
+import {
+  useCategories,
+  useFavorites,
+  useStore,
+  useStoreSales,
+  useToggleFavorite,
+  useUnits,
+} from '../../hooks'
+import { useAuthStore } from '../../store'
 import { categoryTint } from '../../lib/category'
 import { cn } from '../../lib/cn'
 import { formatDistance, formatHHmm, formatWon } from '../../lib/format'
@@ -19,12 +25,15 @@ export function StoreDetailPage() {
   const { id } = useParams()
   const storeId = Number(id)
   const navigate = useNavigate()
+  const userId = useAuthStore((s) => s.userId)
 
   const { data: store, isLoading, isError } = useStore(storeId)
   const { data: sales = [] } = useStoreSales(storeId)
   const { data: categories = [] } = useCategories()
   const { data: units = [] } = useUnits()
-  const [liked, setLiked] = useState(false)
+  const { ids: favoriteIds } = useFavorites(userId)
+  const toggleFavorite = useToggleFavorite(userId)
+  const liked = favoriteIds.has(storeId)
 
   if (isLoading) {
     return (
@@ -62,14 +71,7 @@ export function StoreDetailPage() {
 
   return (
     <>
-      <TopBar
-        title="매장 상세"
-        right={
-          <button aria-label="공유" className="rounded-full p-1.5 text-ink-600">
-            <ShareIcon className="h-[22px] w-[22px]" />
-          </button>
-        }
-      />
+      <TopBar title="매장 상세" />
 
       {/* 상단 이미지 200px */}
       <div
@@ -102,11 +104,13 @@ export function StoreDetailPage() {
             )}
           </div>
           <button
-            onClick={() => setLiked((v) => !v)}
-            aria-label="찜"
+            onClick={() => toggleFavorite.mutate({ storeId, favorited: liked })}
+            disabled={toggleFavorite.isPending}
+            aria-label={liked ? '관심 매장 해제' : '관심 매장 등록'}
+            aria-pressed={liked}
             className={cn(
-              'flex h-10 w-10 shrink-0 items-center justify-center rounded-full border border-line-strong',
-              liked ? 'text-danger' : 'text-ink-400',
+              'flex h-10 w-10 shrink-0 items-center justify-center rounded-full border transition-colors',
+              liked ? 'border-danger/30 bg-danger-50 text-danger' : 'border-line-strong text-ink-400',
             )}
           >
             <HeartIcon className="h-[20px] w-[20px]" filled={liked} />
