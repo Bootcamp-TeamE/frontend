@@ -84,7 +84,7 @@ export function MapPage() {
 
       {/* 상단 플로팅: 검색바 + 필터칩 */}
       <div className="pointer-events-none absolute inset-x-0 top-0 z-20 px-4 pt-4">
-        <div className="pointer-events-auto flex items-center gap-2 rounded-[14px] bg-surface px-4 py-3 shadow-[0_2px_8px_rgba(20,19,15,0.1)]">
+        <div className="pointer-events-auto flex items-center gap-2 rounded-[14px] bg-surface px-4 py-3 shadow-chip">
           <SearchIcon className="h-[18px] w-[18px] text-ink-400" />
           <input
             value={query}
@@ -101,7 +101,7 @@ export function MapPage() {
       {/* 로딩 중: 지도가 빈 것처럼 보이지 않도록 플로팅 표시 */}
       {isLoading && (
         <div className="pointer-events-none absolute inset-x-0 top-24 z-20 flex justify-center">
-          <div className="flex items-center gap-2 rounded-full bg-surface px-4 py-2 text-[13px] font-semibold text-ink-600 shadow-[0_2px_8px_rgba(20,19,15,0.1)]">
+          <div className="flex items-center gap-2 rounded-full bg-surface px-4 py-2 text-[13px] font-semibold text-ink-600 shadow-chip">
             <Spinner className="h-4 w-4" />
             주변 마감세일 불러오는 중…
           </div>
@@ -190,7 +190,7 @@ function KakaoMap({
       onZoomChanged={(map) => setLevel(map.getLevel())}
     >
       <CustomOverlayMap position={{ lat, lng }}>
-        <span className="block h-3.5 w-3.5 rounded-full border-2 border-white bg-info shadow-[0_0_0_6px_rgba(47,109,240,0.25)]" />
+        <span className="block h-3.5 w-3.5 rounded-full border-2 border-white bg-info shadow-locator" />
       </CustomOverlayMap>
       {clusters.map((c) => {
         const key = clusterSelectKey(c)
@@ -244,7 +244,7 @@ function PseudoMap({
     <div className="relative h-full w-full overflow-hidden">
       <MapBackdrop />
       <div className="absolute -translate-x-1/2 -translate-y-1/2" style={pos(lat, lng)}>
-        <span className="block h-3.5 w-3.5 rounded-full border-2 border-white bg-info shadow-[0_0_0_6px_rgba(47,109,240,0.25)]" />
+        <span className="block h-3.5 w-3.5 rounded-full border-2 border-white bg-info shadow-locator" />
       </div>
       {clusters.map((c) => (
         <div
@@ -379,7 +379,7 @@ function SalesPanel({ sales, onClose }: { sales: Sale[]; onClose: () => void }) 
     [sales],
   )
   return (
-    <div className="mx-auto max-w-[430px] overflow-hidden rounded-t-2xl bg-surface shadow-[0_-6px_28px_rgba(20,19,15,0.18)]">
+    <div className="mx-auto max-w-[430px] overflow-hidden rounded-t-2xl bg-surface shadow-sheet">
       <div className="mx-auto mt-2 h-1 w-10 rounded-full bg-line-strong" />
       <div className="flex items-center justify-between px-4 pt-2 pb-2">
         <p className="text-[15px] font-extrabold text-ink-900">

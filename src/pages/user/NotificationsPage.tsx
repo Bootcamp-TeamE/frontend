@@ -43,7 +43,7 @@ export function NotificationsPage() {
         {hasUnread && (
           <button
             onClick={() => markAllRead.mutate(userId)}
-            className="text-[13px] font-semibold text-primary"
+            className="-mr-2 inline-flex min-h-[44px] items-center rounded-lg px-2 text-[13px] font-semibold text-primary hover:bg-primary-50"
           >
             모두 읽음
           </button>

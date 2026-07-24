@@ -97,7 +97,7 @@ export function StoreDetailPage() {
             aria-label={liked ? '관심 매장 해제' : '관심 매장 등록'}
             aria-pressed={liked}
             className={cn(
-              'flex h-10 w-10 shrink-0 items-center justify-center rounded-full border transition-colors',
+              'flex h-11 w-11 shrink-0 items-center justify-center rounded-full border transition-colors',
               liked ? 'border-danger/30 bg-danger-50 text-danger' : 'border-line-strong text-ink-400',
             )}
           >
