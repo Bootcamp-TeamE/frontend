@@ -5,7 +5,7 @@ export function formatWon(value: number): string {
 // 320 → "320m", 1100 → "1.1km"
 export function formatDistance(meters: number | undefined | null): string | null {
   if (meters == null) return null
-  if (meters < 1000) return `${meters}m`
+  if (meters < 1000) return `${Math.round(meters)}m`
   return `${(meters / 1000).toFixed(1)}km`
 }
 
