@@ -42,7 +42,9 @@ export interface Store {
   address: string | null
   lat: number
   lng: number
-  // ── 디자인(매장 상세)에서 필요로 하는 선택 필드 ──
+  /** 매장 상세(GET /stores/{id})에서 내려오는 관심 매장 등록 수 */
+  favorite_count?: number
+  // ── mock 데이터 전용(실서버 미제공) ──
   distance_m?: number
   rating?: number
   review_count?: number

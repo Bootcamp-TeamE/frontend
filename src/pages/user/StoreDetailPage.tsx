@@ -4,7 +4,6 @@ import {
   EmptyState,
   HeartIcon,
   LoadingScreen,
-  StarIcon,
   TopBar,
 } from '../../components'
 import {
@@ -18,7 +17,7 @@ import {
 import { useAuthStore } from '../../store'
 import { categoryTint } from '../../lib/category'
 import { cn } from '../../lib/cn'
-import { formatDistance, formatHHmm, formatWon } from '../../lib/format'
+import { formatHHmm, formatWon } from '../../lib/format'
 import type { Sale } from '../../types'
 
 export function StoreDetailPage() {
@@ -62,7 +61,6 @@ export function StoreDetailPage() {
   const catLabel =
     categories.find((c) => c.code === store.category_code)?.name_ko ?? store.category_code
   const unitName = Object.fromEntries(units.map((u) => [u.code, u.name_ko]))
-  const dist = formatDistance(store.distance_m)
   // 오늘 마감 = 판매 중 세일 중 가장 늦은 마감
   const latest = sales
     .map((s) => s.deadline_at)
@@ -82,19 +80,13 @@ export function StoreDetailPage() {
             <h1 className="text-[22px] font-bold text-ink-900">{store.name}</h1>
             <p className="mt-1 text-[13px] text-ink-600">
               {catLabel}
-              {dist && ` · ${dist}`}
               {store.address && ` · ${store.address}`}
             </p>
-            {store.rating != null && (
-              <p className="mt-1.5 flex items-center gap-1 text-[13px] text-ink-600">
-                <StarIcon className="h-4 w-4 text-primary" />
-                <span className="font-bold text-ink-900">{store.rating.toFixed(1)}</span>
-                {store.review_count != null && (
-                  <span className="text-ink-400">({store.review_count})</span>
-                )}
-                {latest && <span className="text-ink-400"> · 오늘 {formatHHmm(latest)} 마감</span>}
-              </p>
-            )}
+            <p className="mt-1.5 flex items-center gap-1 text-[13px] text-ink-600">
+              <HeartIcon className="h-4 w-4 text-danger" filled />
+              <span className="font-bold text-ink-900">관심 {store.favorite_count ?? 0}</span>
+              {latest && <span className="text-ink-400"> · 오늘 {formatHHmm(latest)} 마감</span>}
+            </p>
           </div>
           <button
             onClick={() => toggleFavorite.mutate({ storeId, favorited: liked })}
