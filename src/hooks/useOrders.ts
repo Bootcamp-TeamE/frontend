@@ -30,6 +30,7 @@ export function useLookupOrder(code: string, enabled: boolean) {
 }
 
 // 예약·결제·취소·수령은 재고/주문 상태를 바꾸므로 관련 목록을 넓게 무효화한다.
+// lookup-order: 점주 QR 확인 화면이 픽업 처리 후 상태를 다시 읽도록 포함.
 function useOrderMutation<TArgs, TData>(fn: (args: TArgs) => Promise<TData>) {
   const queryClient = useQueryClient()
   return useMutation({
@@ -37,6 +38,7 @@ function useOrderMutation<TArgs, TData>(fn: (args: TArgs) => Promise<TData>) {
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['orders'] })
       queryClient.invalidateQueries({ queryKey: ['order'] })
+      queryClient.invalidateQueries({ queryKey: ['lookup-order'] })
       queryClient.invalidateQueries({ queryKey: ['sale'] })
       queryClient.invalidateQueries({ queryKey: ['sales'] })
       queryClient.invalidateQueries({ queryKey: ['search-sales'] })
