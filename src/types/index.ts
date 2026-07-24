@@ -2,7 +2,7 @@
 
 export type SaleStatus = 'active' | 'soldout' | 'closed'
 export type OrderStatus = 'reserved' | 'paid' | 'picked_up' | 'cancelled' | 'expired'
-export type NotificationType = 'order_paid' | 'sale_nearby'
+export type NotificationType = 'order_paid' | 'order_picked_up' | 'sale_nearby'
 export type UnitType = 'count' | 'weight'
 
 export interface Category {

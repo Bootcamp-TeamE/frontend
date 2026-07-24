@@ -189,6 +189,7 @@ export function pickupOrder(id: number): Order {
   if (order.status === 'paid') {
     order.status = 'picked_up'
     order.picked_up_at = new Date().toISOString()
+    pushNotification({ order_id: order.id, sale_id: order.sale_id, type: 'order_picked_up' })
   }
   return order
 }
