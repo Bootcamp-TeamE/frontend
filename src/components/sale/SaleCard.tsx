@@ -3,6 +3,7 @@ import type { Sale } from '../../types'
 import { cn } from '../../lib/cn'
 import { formatWon, formatDistance, formatHHmm } from '../../lib/format'
 import { categoryTint } from '../../lib/category'
+import { resolveImageUrl } from '../../lib/image'
 
 const CLOSING_SOON_MS = 60 * 60 * 1000
 
@@ -35,15 +36,23 @@ export function SaleCard({
         soldout && 'opacity-50',
       )}
     >
-      {/* 썸네일 72 — 이미지 없어 카테고리 톤 줄무늬 플레이스홀더 */}
-      <div
-        className={cn(
-          'thumb-stripe flex h-[72px] w-[72px] shrink-0 items-center justify-center rounded-thumb font-mono text-[11px] font-bold tracking-tight',
-          categoryTint(sale.category_code),
-        )}
-      >
-        {categoryLabel.slice(0, 2)}
-      </div>
+      {/* 썸네일 72 — 이미지 있으면 표시, 없으면 카테고리 톤 줄무늬 폴백 */}
+      {resolveImageUrl(sale.image_url) ? (
+        <img
+          src={resolveImageUrl(sale.image_url) as string}
+          alt={sale.title}
+          className="h-[72px] w-[72px] shrink-0 rounded-thumb object-cover"
+        />
+      ) : (
+        <div
+          className={cn(
+            'thumb-stripe flex h-[72px] w-[72px] shrink-0 items-center justify-center rounded-thumb font-mono text-[11px] font-bold tracking-tight',
+            categoryTint(sale.category_code),
+          )}
+        >
+          {categoryLabel.slice(0, 2)}
+        </div>
+      )}
 
       {/* 본문 */}
       <div className="flex min-w-0 flex-1 flex-col">

@@ -64,6 +64,8 @@ export interface Sale {
   deadline_at: string
   status: SaleStatus
   discount_rate: number
+  description?: string | null
+  image_url?: string | null
   // ── 디자인(홈 리스트·지도·상세)에서 필요로 하는 선택 필드 ──
   // 백엔드 목록/검색 응답에 조인해 내려주면 그대로 사용됨. 없으면 화면에서 graceful 처리.
   store_name?: string
@@ -147,6 +149,8 @@ export interface SaleCreate {
   sale_price: number
   total_quantity: number
   deadline_at: string
+  description?: string | null
+  image_url?: string | null
   category_code?: string | null
   unit_code?: string | null
   min_order?: number

@@ -1,13 +1,23 @@
-import { useState } from 'react'
+import { useMemo, useState } from 'react'
 import type { ReactNode } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { Button, EmptyState, LoadingScreen } from '../../components'
-import { useCategories, useCreateSale, useMyStore, useUnits } from '../../hooks'
+import { useCategories, useCreateSale, useMyStore, useUnits, useUploadImage } from '../../hooks'
 import { useAuthStore } from '../../store'
 import { formatWon } from '../../lib/format'
+import { cn } from '../../lib/cn'
 
 const inputCls =
   'w-full rounded-card border border-line-strong bg-surface px-4 py-3 text-[15px] text-ink-900 placeholder:text-ink-300 focus:border-primary focus:outline-none'
+
+// 마감세일은 대부분 '오늘 몇 시간 뒤' → 빠른 선택 칩.
+const DEADLINE_PRESETS = [1, 2, 3, 6]
+
+function toLocalInput(date: Date): string {
+  const d = new Date(date)
+  d.setMinutes(d.getMinutes() - d.getTimezoneOffset())
+  return d.toISOString().slice(0, 16)
+}
 
 export function OwnerSaleNewPage() {
   const ownerId = useAuthStore((s) => s.ownerId)
@@ -16,8 +26,11 @@ export function OwnerSaleNewPage() {
   const { data: categories = [] } = useCategories()
   const { data: units = [] } = useUnits()
   const create = useCreateSale(store?.id ?? 0)
+  const upload = useUploadImage()
 
   const [title, setTitle] = useState('')
+  const [description, setDescription] = useState('')
+  const [imageFile, setImageFile] = useState<File | null>(null)
   const [category, setCategory] = useState('')
   const [unit, setUnit] = useState('') // '' = 매장 카테고리 기본 단위 상속
   const [normal, setNormal] = useState('')
@@ -25,6 +38,13 @@ export function OwnerSaleNewPage() {
   const [qty, setQty] = useState('')
   const [minOrder, setMinOrder] = useState('1')
   const [deadline, setDeadline] = useState('')
+  const [activePreset, setActivePreset] = useState<number | null>(null)
+  const [manualOpen, setManualOpen] = useState(false)
+
+  const imagePreview = useMemo(
+    () => (imageFile ? URL.createObjectURL(imageFile) : null),
+    [imageFile],
+  )
 
   if (isLoading) return <LoadingScreen />
 
@@ -45,14 +65,49 @@ export function OwnerSaleNewPage() {
   const n = Number(normal) || 0
   const s = Number(salePrice) || 0
   const discount = n > 0 && s > 0 && s < n ? Math.round((1 - s / n) * 100) : 0
-  const valid = !!(title.trim() && n > 0 && s > 0 && s < n && Number(qty) > 0 && deadline)
+  const nowLocal = toLocalInput(new Date())
+  const priceInvalid = n > 0 && s > 0 && s >= n
+  const deadlinePast = !!deadline && deadline < nowLocal
+  const deadlineLabel = deadline
+    ? new Date(deadline).toLocaleString('ko-KR', {
+        month: 'long',
+        day: 'numeric',
+        hour: '2-digit',
+        minute: '2-digit',
+      })
+    : null
+  const valid = !!(
+    title.trim() &&
+    n > 0 &&
+    s > 0 &&
+    s < n &&
+    Number(qty) > 0 &&
+    deadline &&
+    !deadlinePast
+  )
+  const submitting = create.isPending || upload.isPending
 
-  const submit = () => {
+  const pickPreset = (hours: number) => {
+    setDeadline(toLocalInput(new Date(Date.now() + hours * 3600 * 1000)))
+    setActivePreset(hours)
+  }
+
+  const submit = async () => {
+    let image_url: string | undefined
+    if (imageFile) {
+      try {
+        image_url = await upload.mutateAsync(imageFile)
+      } catch {
+        return // 업로드 실패는 upload.isError로 표면화
+      }
+    }
     create.mutate(
       {
         title,
+        description: description.trim() || undefined,
+        image_url,
         category_code: category || store.category_code,
-        unit_code: unit || undefined, // 미선택 시 백엔드가 카테고리 기본 단위 상속
+        unit_code: unit || undefined,
         normal_price: n,
         sale_price: s,
         total_quantity: Number(qty),
@@ -64,11 +119,64 @@ export function OwnerSaleNewPage() {
   }
 
   return (
-    <div className="max-w-xl">
+    <div>
       <h1 className="text-2xl font-extrabold text-ink-900">세일 등록</h1>
       <p className="mt-1 text-sm text-ink-500">{store.name}의 마감세일을 등록해요.</p>
 
-      <div className="mt-6 space-y-5 rounded-card-lg border border-line bg-surface p-6">
+      <div className="mt-6 rounded-card-lg border border-line bg-surface p-6">
+        <div className="grid grid-cols-1 gap-6 md:grid-cols-2 md:items-stretch">
+          {/* 왼쪽: 이미지·설명 */}
+          <div className="flex flex-col gap-5">
+        {/* 상품 이미지 */}
+        <div>
+          <span className="mb-1.5 block text-[13px] font-semibold text-ink-700">
+            상품 이미지 (선택)
+          </span>
+          <label className="block cursor-pointer">
+            {imagePreview ? (
+              <img
+                src={imagePreview}
+                alt="미리보기"
+                className="h-40 w-full rounded-card object-cover"
+              />
+            ) : (
+              <div className="flex h-40 w-full flex-col items-center justify-center gap-1 rounded-card border border-dashed border-line-strong bg-paper text-ink-400">
+                <span className="text-[14px] font-semibold">이미지 선택</span>
+                <span className="text-[12px]">없으면 카테고리 기본 이미지가 사용돼요</span>
+              </div>
+            )}
+            <input
+              type="file"
+              accept="image/*"
+              className="hidden"
+              onChange={(e) => setImageFile(e.target.files?.[0] ?? null)}
+            />
+          </label>
+          {imageFile && (
+            <button
+              onClick={() => setImageFile(null)}
+              className="mt-1.5 text-[13px] font-semibold text-ink-400"
+            >
+              이미지 제거
+            </button>
+          )}
+        </div>
+
+        <label className="flex flex-1 flex-col">
+          <span className="mb-1.5 block text-[13px] font-semibold text-ink-700">
+            상품 설명 (선택)
+          </span>
+          <textarea
+            value={description}
+            onChange={(e) => setDescription(e.target.value)}
+            placeholder="예: 오늘 구운 버터 크로와상, 마감 임박 특가"
+            className={cn(inputCls, 'min-h-[120px] flex-1 resize-none')}
+          />
+        </label>
+          </div>
+
+          {/* 오른쪽: 나머지 */}
+          <div className="space-y-5">
         <Field label="상품명">
           <input
             value={title}
@@ -77,7 +185,6 @@ export function OwnerSaleNewPage() {
             className={inputCls}
           />
         </Field>
-
         <div className="grid grid-cols-2 gap-4">
           <Field label="카테고리">
             <select value={category} onChange={(e) => setCategory(e.target.value)} className={inputCls}>
@@ -105,18 +212,18 @@ export function OwnerSaleNewPage() {
           <Field label="정상가 (원)">
             <input
               inputMode="numeric"
-              value={normal}
+              value={normal ? Number(normal).toLocaleString('ko-KR') : ''}
               onChange={(e) => setNormal(e.target.value.replace(/[^0-9]/g, ''))}
-              placeholder="5000"
+              placeholder="5,000"
               className={inputCls}
             />
           </Field>
           <Field label="할인가 (원)">
             <input
               inputMode="numeric"
-              value={salePrice}
+              value={salePrice ? Number(salePrice).toLocaleString('ko-KR') : ''}
               onChange={(e) => setSalePrice(e.target.value.replace(/[^0-9]/g, ''))}
-              placeholder="2500"
+              placeholder="2,500"
               className={inputCls}
             />
           </Field>
@@ -129,6 +236,9 @@ export function OwnerSaleNewPage() {
               {discount}% · {formatWon(s)}
             </span>
           </div>
+        )}
+        {priceInvalid && (
+          <p className="text-[13px] text-danger">할인가는 정상가보다 낮아야 해요.</p>
         )}
 
         <div className="grid grid-cols-2 gap-4">
@@ -152,30 +262,81 @@ export function OwnerSaleNewPage() {
           </Field>
         </div>
 
-        <Field label="마감 시각">
-          <input
-            type="datetime-local"
-            value={deadline}
-            onChange={(e) => setDeadline(e.target.value)}
-            className={inputCls}
-          />
-        </Field>
+        <div>
+          <span className="mb-1.5 block text-[13px] font-semibold text-ink-700">마감 시각</span>
+          <div className="flex flex-wrap gap-2">
+            {DEADLINE_PRESETS.map((h) => (
+              <button
+                key={h}
+                onClick={() => {
+                  pickPreset(h)
+                  setManualOpen(false)
+                }}
+                className={cn(
+                  'rounded-pill px-3.5 py-1.5 text-[13px] font-semibold transition-colors',
+                  activePreset === h
+                    ? 'bg-primary text-white'
+                    : 'border border-line-strong bg-surface text-ink-600',
+                )}
+              >
+                {h}시간 후
+              </button>
+            ))}
+            <button
+              onClick={() => setManualOpen((v) => !v)}
+              className={cn(
+                'rounded-pill px-3.5 py-1.5 text-[13px] font-semibold transition-colors',
+                manualOpen || activePreset === null
+                  ? 'bg-ink-900 text-white'
+                  : 'border border-line-strong bg-surface text-ink-600',
+              )}
+            >
+              직접 입력
+            </button>
+          </div>
 
-        {create.isError && (
-          <p className="text-sm text-danger">
-            {(create.error as Error)?.message ?? '등록에 실패했어요.'}
-          </p>
-        )}
+          {manualOpen && (
+            <input
+              type="datetime-local"
+              value={deadline}
+              min={nowLocal}
+              onChange={(e) => {
+                setDeadline(e.target.value)
+                setActivePreset(null)
+              }}
+              className={cn(inputCls, 'mt-2')}
+            />
+          )}
 
-        <Button
-          fullWidth
-          size="lg"
-          className="rounded-[12px]"
-          disabled={!valid || create.isPending}
-          onClick={submit}
-        >
-          {create.isPending ? '등록 중…' : '세일 등록하기'}
-        </Button>
+          {deadline && !deadlinePast && (
+            <p className="mt-1.5 text-[13px] text-ink-500">
+              마감 <span className="font-semibold text-ink-900">{deadlineLabel}</span>
+            </p>
+          )}
+          {deadlinePast && (
+            <p className="mt-1.5 text-[13px] text-danger">마감 시각은 현재 이후여야 해요.</p>
+          )}
+        </div>
+          </div>
+        </div>
+
+        <div className="mt-6 space-y-4">
+          {(create.isError || upload.isError) && (
+            <p className="text-sm text-danger">
+              {((create.error ?? upload.error) as Error)?.message ?? '등록에 실패했어요.'}
+            </p>
+          )}
+
+          <Button
+            fullWidth
+            size="lg"
+            className="rounded-[12px]"
+            disabled={!valid || submitting}
+            onClick={submit}
+          >
+            {upload.isPending ? '이미지 업로드 중…' : create.isPending ? '등록 중…' : '세일 등록하기'}
+          </Button>
+        </div>
       </div>
     </div>
   )
