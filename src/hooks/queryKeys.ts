@@ -21,4 +21,5 @@ export const qk = {
   dashboard: (ownerId: number) => ['dashboard', ownerId] as const,
   myStore: (ownerId: number) => ['my-store', ownerId] as const,
   lookupOrder: (code: string) => ['lookup-order', code] as const,
+  favorites: (userId: number) => ['favorites', userId] as const,
 }

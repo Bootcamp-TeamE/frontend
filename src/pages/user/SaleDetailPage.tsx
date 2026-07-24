@@ -11,7 +11,16 @@ import {
   Sheet,
   TopBar,
 } from '../../components'
-import { useCategories, useCreateOrder, useNow, useSale, useStore, useUnits } from '../../hooks'
+import {
+  useCategories,
+  useCreateOrder,
+  useFavorites,
+  useNow,
+  useSale,
+  useStore,
+  useToggleFavorite,
+  useUnits,
+} from '../../hooks'
 import { useAuthStore } from '../../store'
 import { categoryTint } from '../../lib/category'
 import { cn } from '../../lib/cn'
@@ -33,7 +42,9 @@ export function SaleDetailPage() {
   const createOrder = useCreateOrder()
 
   const [qtyRaw, setQty] = useState<number | null>(null)
-  const [liked, setLiked] = useState(false)
+  const { ids: favoriteIds } = useFavorites(userId)
+  const toggleFavorite = useToggleFavorite(userId)
+  const liked = sale?.store_id != null && favoriteIds.has(sale.store_id)
 
   if (isLoading) {
     return (
@@ -86,8 +97,13 @@ export function SaleDetailPage() {
         title="상품 상세"
         right={
           <button
-            onClick={() => setLiked((v) => !v)}
-            aria-label="찜"
+            onClick={() =>
+              sale?.store_id != null &&
+              toggleFavorite.mutate({ storeId: sale.store_id, favorited: liked })
+            }
+            disabled={toggleFavorite.isPending}
+            aria-label={liked ? '관심 매장 해제' : '관심 매장 등록'}
+            aria-pressed={liked}
             className={cn('rounded-full p-1.5', liked ? 'text-danger' : 'text-ink-400')}
           >
             <HeartIcon className="h-6 w-6" filled={liked} />

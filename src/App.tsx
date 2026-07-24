@@ -1,6 +1,7 @@
 import { Navigate, Route, Routes } from 'react-router-dom'
 import { MobileLayout, MobilePushLayout, OwnerLayout } from './components'
 import {
+  FavoritesPage,
   HomePage,
   MapPage,
   MyPage,
@@ -34,6 +35,7 @@ function App() {
         <Route path="/sales/:id" element={<SaleDetailPage />} />
         <Route path="/orders" element={<OrdersPage />} />
         <Route path="/orders/:id" element={<OrderDetailPage />} />
+        <Route path="/favorites" element={<FavoritesPage />} />
         <Route path="/subscriptions" element={<SubscriptionsPage />} />
       </Route>
 

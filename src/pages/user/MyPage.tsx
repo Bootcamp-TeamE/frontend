@@ -1,7 +1,7 @@
 import type { ReactNode } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
-import { BellIcon, BoxIcon, ChevronRightIcon, UserIcon } from '../../components'
-import { useOrders } from '../../hooks'
+import { BellIcon, BoxIcon, ChevronRightIcon, HeartIcon, UserIcon } from '../../components'
+import { useFavorites, useOrders } from '../../hooks'
 import { useAuthStore } from '../../store'
 
 export function MyPage() {
@@ -9,9 +9,11 @@ export function MyPage() {
   const setRole = useAuthStore((s) => s.setRole)
   const navigate = useNavigate()
   const { data: orders } = useOrders(userId)
+  const { data: favorites } = useFavorites(userId)
 
   const activeCount =
     orders?.filter((o) => o.status === 'reserved' || o.status === 'paid').length ?? 0
+  const favoriteCount = favorites?.length ?? 0
 
   const goOwner = () => {
     setRole('owner')
@@ -44,6 +46,12 @@ export function MyPage() {
           icon={<BoxIcon className="h-5 w-5" />}
           label="내 예약"
           trailing={activeCount > 0 ? `진행 중 ${activeCount}` : undefined}
+        />
+        <MenuRow
+          to="/favorites"
+          icon={<HeartIcon className="h-5 w-5" />}
+          label="관심 매장"
+          trailing={favoriteCount > 0 ? `${favoriteCount}곳` : undefined}
         />
         <MenuRow
           to="/subscriptions"
