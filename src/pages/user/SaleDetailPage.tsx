@@ -214,14 +214,11 @@ export function SaleDetailPage() {
             fullWidth
             size="lg"
             className="rounded-[14px]"
-            disabled={soldout || createOrder.isPending}
+            disabled={soldout}
+            loading={createOrder.isPending}
             onClick={reserve}
           >
-            {soldout
-              ? '마감된 상품이에요'
-              : createOrder.isPending
-                ? '예약 중…'
-                : '예약하고 결제하기'}
+            {soldout ? '마감된 상품이에요' : '예약하고 결제하기'}
           </Button>
         </div>
       </div>

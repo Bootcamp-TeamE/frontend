@@ -1,5 +1,5 @@
 import { Link } from 'react-router-dom'
-import { Card, EmptyState, HeartIcon, LoadingScreen, TopBar } from '../../components'
+import { Card, EmptyState, HeartIcon, ListSkeleton, TopBar } from '../../components'
 import { useCategories, useFavorites, useToggleFavorite } from '../../hooks'
 import { useAuthStore } from '../../store'
 import { categoryTint } from '../../lib/category'
@@ -13,7 +13,11 @@ export function FavoritesPage() {
   return (
     <>
       <TopBar title="관심 매장" />
-      {isLoading && <LoadingScreen />}
+      {isLoading && (
+        <div className="px-5 py-3">
+          <ListSkeleton count={4} meta={false} />
+        </div>
+      )}
       {stores && stores.length === 0 && (
         <EmptyState
           title="관심 매장이 없어요"

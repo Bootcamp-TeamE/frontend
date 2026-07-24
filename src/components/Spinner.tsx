@@ -1,9 +1,11 @@
 import { cn } from '../lib/cn'
 
 export function Spinner({ className }: { className?: string }) {
+  // 호출부가 text-* 색을 주면 기본 text-primary를 빼야 버튼 텍스트색을 따라감(cn은 단순 join이라 중복 시 순서 보장 안 됨).
+  const hasColor = className?.includes('text-')
   return (
     <svg
-      className={cn('h-5 w-5 animate-spin text-primary', className)}
+      className={cn('h-5 w-5 animate-spin', !hasColor && 'text-primary', className)}
       viewBox="0 0 24 24"
       fill="none"
     >

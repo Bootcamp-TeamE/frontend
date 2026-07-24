@@ -331,10 +331,11 @@ export function OwnerSaleNewPage() {
             fullWidth
             size="lg"
             className="rounded-[12px]"
-            disabled={!valid || submitting}
+            disabled={!valid}
+            loading={submitting}
             onClick={submit}
           >
-            {upload.isPending ? '이미지 업로드 중…' : create.isPending ? '등록 중…' : '세일 등록하기'}
+            세일 등록하기
           </Button>
         </div>
       </div>

@@ -104,10 +104,11 @@ export function OwnerStorePage() {
           fullWidth
           size="lg"
           className="rounded-[12px]"
-          disabled={saving || !name.trim()}
+          disabled={!name.trim()}
+          loading={saving}
           onClick={save}
         >
-          {saving ? '저장 중…' : store ? '매장 정보 저장' : '매장 등록'}
+          {store ? '매장 정보 저장' : '매장 등록'}
         </Button>
       </div>
     </div>

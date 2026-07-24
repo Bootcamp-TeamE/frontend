@@ -72,10 +72,10 @@ export function OwnerScanPage() {
                   fullWidth
                   size="lg"
                   className="rounded-[12px]"
-                  disabled={pickup.isPending}
+                  loading={pickup.isPending}
                   onClick={() => pickup.mutate(order.id)}
                 >
-                  {pickup.isPending ? '처리 중…' : '픽업 완료 처리'}
+                  픽업 완료 처리
                 </Button>
               )}
               {order.status === 'picked_up' && (

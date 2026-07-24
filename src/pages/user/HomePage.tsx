@@ -3,9 +3,9 @@ import { Link } from 'react-router-dom'
 import {
   CategoryFilter,
   EmptyState,
+  ListSkeleton,
   MapIcon,
   SaleCard,
-  SaleCardSkeleton,
 } from '../../components'
 import { useCategories, useNow, useSearchSales, useUnits } from '../../hooks'
 import { useLocationStore } from '../../store'
@@ -125,13 +125,7 @@ export function HomePage() {
 
       {/* 리스트 */}
       <div className="mt-1 min-h-[60vh] bg-surface px-5">
-        {isLoading && (
-          <div>
-            {[0, 1, 2, 3].map((i) => (
-              <SaleCardSkeleton key={i} />
-            ))}
-          </div>
-        )}
+        {isLoading && <ListSkeleton count={4} />}
 
         {isError && (
           <p className="py-16 text-center text-sm text-danger">
