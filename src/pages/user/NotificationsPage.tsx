@@ -1,5 +1,5 @@
 import { useNavigate } from 'react-router-dom'
-import { BellIcon, CheckIcon, EmptyState, LoadingScreen } from '../../components'
+import { BellIcon, CheckIcon, EmptyState, ListSkeleton } from '../../components'
 import { useMarkAllRead, useMarkRead, useNotifications, useNow } from '../../hooks'
 import { useAuthStore } from '../../store'
 import { cn } from '../../lib/cn'
@@ -41,7 +41,11 @@ export function NotificationsPage() {
         )}
       </header>
 
-      {isLoading && <LoadingScreen />}
+      {isLoading && (
+        <div className="bg-surface px-5">
+          <ListSkeleton count={5} avatar="circle" meta={false} />
+        </div>
+      )}
 
       {items && items.length === 0 && (
         <EmptyState

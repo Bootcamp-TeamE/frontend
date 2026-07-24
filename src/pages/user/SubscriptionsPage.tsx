@@ -150,10 +150,11 @@ export function SubscriptionsPage() {
             fullWidth
             size="lg"
             className="rounded-[14px]"
-            disabled={saving || cats.length === 0}
+            disabled={cats.length === 0}
+            loading={saving}
             onClick={save}
           >
-            {saving ? '저장 중…' : existing ? '구독 수정하기' : '구독 시작하기'}
+            {existing ? '구독 수정하기' : '구독 시작하기'}
           </Button>
           {cats.length === 0 && (
             <p className="mt-2 text-center text-[12px] text-ink-400">

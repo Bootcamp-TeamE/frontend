@@ -1,6 +1,6 @@
 import { useState } from 'react'
 import { Link } from 'react-router-dom'
-import { Badge, Button, EmptyState, LoadingScreen, Sheet, TopBar } from '../../components'
+import { Badge, Button, EmptyState, ListSkeleton, Sheet, TopBar } from '../../components'
 import { useCancelOrder, useOrders, useSale } from '../../hooks'
 import { useAuthStore } from '../../store'
 import { ORDER_STATUS_LABEL, ORDER_STATUS_TONE } from '../../lib/order'
@@ -25,7 +25,11 @@ export function OrdersPage() {
   return (
     <>
       <TopBar title="내 예약" />
-      {isLoading && <LoadingScreen />}
+      {isLoading && (
+        <div className="bg-surface px-5">
+          <ListSkeleton count={4} />
+        </div>
+      )}
       {sorted && sorted.length === 0 && (
         <EmptyState
           title="예약 내역이 없어요"
@@ -51,8 +55,8 @@ export function OrdersPage() {
           </p>
         )}
         <div className="mt-4 flex flex-col gap-2">
-          <Button variant="danger" fullWidth disabled={cancel.isPending} onClick={doCancel}>
-            {cancel.isPending ? '취소 중…' : '예약 취소하기'}
+          <Button variant="danger" fullWidth loading={cancel.isPending} onClick={doCancel}>
+            예약 취소하기
           </Button>
           <Button variant="ghost" fullWidth onClick={() => setTarget(null)}>
             닫기

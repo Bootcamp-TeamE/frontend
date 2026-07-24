@@ -189,10 +189,10 @@ function CheckoutView({
             fullWidth
             size="lg"
             className="rounded-[14px]"
-            disabled={paying}
+            loading={paying}
             onClick={onPay}
           >
-            {paying ? '결제 중…' : `${formatWon(order.total_price)} 결제하기`}
+            {`${formatWon(order.total_price)} 결제하기`}
           </Button>
         </div>
       </div>

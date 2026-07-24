@@ -1,5 +1,5 @@
 import { Link } from 'react-router-dom'
-import { Badge, Button, LoadingScreen } from '../../components'
+import { Badge, Button, Skeleton } from '../../components'
 import {
   useDashboard,
   useDashboardStream,
@@ -19,8 +19,6 @@ export function OwnerDashboardPage() {
   const { data: store } = useMyStore(ownerId)
   const { data: sales } = useStoreSales(store?.id)
 
-  if (isLoading) return <LoadingScreen />
-
   return (
     <div>
       <div className="flex items-end justify-between">
@@ -37,10 +35,10 @@ export function OwnerDashboardPage() {
 
       {/* 스탯 카드 */}
       <div className="mt-6 grid grid-cols-2 gap-3 sm:grid-cols-4">
-        <StatCard label="진행 중 세일" value={dash ? `${dash.active_sales}` : '-'} unit="건" />
-        <StatCard label="오늘 주문" value={dash ? `${dash.today_orders}` : '-'} unit="건" />
-        <StatCard label="오늘 매출" value={dash ? formatWon(dash.today_revenue) : '-'} highlight />
-        <StatCard label="도달 수" value={dash ? `${dash.total_reach}` : '-'} unit="명" />
+        <StatCard label="진행 중 세일" value={dash && `${dash.active_sales}`} unit="건" loading={isLoading} />
+        <StatCard label="오늘 주문" value={dash && `${dash.today_orders}`} unit="건" loading={isLoading} />
+        <StatCard label="오늘 매출" value={dash && formatWon(dash.today_revenue)} highlight loading={isLoading} />
+        <StatCard label="도달 수" value={dash && `${dash.total_reach}`} unit="명" loading={isLoading} />
       </div>
 
       {/* 세일 목록 */}
@@ -67,11 +65,13 @@ function StatCard({
   value,
   unit,
   highlight,
+  loading,
 }: {
   label: string
-  value: string
+  value?: string | false
   unit?: string
   highlight?: boolean
+  loading?: boolean
 }) {
   return (
     <div
@@ -81,15 +81,19 @@ function StatCard({
       )}
     >
       <p className="text-[12px] text-ink-500">{label}</p>
-      <p
-        className={cn(
-          'mt-1.5 text-[22px] font-extrabold tnum',
-          highlight ? 'text-primary-800' : 'text-ink-900',
-        )}
-      >
-        {value}
-        {unit && <span className="ml-0.5 text-[13px] font-semibold text-ink-400">{unit}</span>}
-      </p>
+      {loading ? (
+        <Skeleton className="mt-2 h-6 w-16" />
+      ) : (
+        <p
+          className={cn(
+            'mt-1.5 text-[22px] font-extrabold tnum',
+            highlight ? 'text-primary-800' : 'text-ink-900',
+          )}
+        >
+          {value || '-'}
+          {unit && <span className="ml-0.5 text-[13px] font-semibold text-ink-400">{unit}</span>}
+        </p>
+      )}
     </div>
   )
 }
@@ -124,7 +128,7 @@ function SaleAdminRow({ sale }: { sale: Sale }) {
           variant="ghost"
           size="sm"
           className="border border-line-strong"
-          disabled={update.isPending}
+          loading={update.isPending}
           onClick={() => update.mutate({ id: sale.id, payload: { status: 'closed' } })}
         >
           마감 처리

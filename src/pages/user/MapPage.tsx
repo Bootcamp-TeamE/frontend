@@ -1,7 +1,7 @@
 import { useEffect, useMemo, useState } from 'react'
 import { Link } from 'react-router-dom'
 import { CustomOverlayMap, Map } from 'react-kakao-maps-sdk'
-import { ChevronRightIcon, SearchIcon } from '../../components'
+import { ChevronRightIcon, SearchIcon, Spinner } from '../../components'
 import { useCategories, useNow, useSearchSales } from '../../hooks'
 import { useLocationStore } from '../../store'
 import { isKakaoKeyConfigured, useKakaoMapLoader } from '../../lib/kakao'
@@ -47,7 +47,7 @@ export function MapPage() {
   const [selected, setSelected] = useState<Sale[] | null>(null)
 
   const { data: categories = [] } = useCategories()
-  const { data: sales = [] } = useSearchSales({ lat, lng, radius: RADIUS, category })
+  const { data: sales = [], isLoading } = useSearchSales({ lat, lng, radius: RADIUS, category })
 
   const filtered = useMemo(() => {
     const q = query.trim()
@@ -98,6 +98,16 @@ export function MapPage() {
           <MapChips categories={categories} selected={category} onSelect={setCategory} />
         </div>
       </div>
+
+      {/* 로딩 중: 지도가 빈 것처럼 보이지 않도록 플로팅 표시 */}
+      {isLoading && (
+        <div className="pointer-events-none absolute inset-x-0 top-24 z-20 flex justify-center">
+          <div className="flex items-center gap-2 rounded-full bg-surface px-4 py-2 text-[13px] font-semibold text-ink-600 shadow-[0_2px_8px_rgba(20,19,15,0.1)]">
+            <Spinner className="h-4 w-4" />
+            주변 마감세일 불러오는 중…
+          </div>
+        </div>
+      )}
 
       {/* 하단 리스트 시트 (바닥에 붙임) */}
       {selected && selected.length > 0 && (

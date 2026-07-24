@@ -1,5 +1,6 @@
 import type { ButtonHTMLAttributes } from 'react'
 import { cn } from '../lib/cn'
+import { Spinner } from './Spinner'
 
 type Variant = 'primary' | 'secondary' | 'danger' | 'ghost'
 type Size = 'sm' | 'md' | 'lg'
@@ -8,6 +9,7 @@ interface ButtonProps extends ButtonHTMLAttributes<HTMLButtonElement> {
   variant?: Variant
   size?: Size
   fullWidth?: boolean
+  loading?: boolean
 }
 
 const variants: Record<Variant, string> = {
@@ -27,7 +29,10 @@ export function Button({
   variant = 'primary',
   size = 'md',
   fullWidth = false,
+  loading = false,
+  disabled,
   className,
+  children,
   ...props
 }: ButtonProps) {
   return (
@@ -39,7 +44,12 @@ export function Button({
         fullWidth && 'w-full',
         className,
       )}
+      disabled={disabled || loading}
+      aria-busy={loading || undefined}
       {...props}
-    />
+    >
+      {loading && <Spinner className="h-4 w-4 text-current" />}
+      {children}
+    </button>
   )
 }

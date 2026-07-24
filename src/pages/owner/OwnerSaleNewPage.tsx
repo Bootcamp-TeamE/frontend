@@ -171,10 +171,11 @@ export function OwnerSaleNewPage() {
           fullWidth
           size="lg"
           className="rounded-[12px]"
-          disabled={!valid || create.isPending}
+          disabled={!valid}
+          loading={create.isPending}
           onClick={submit}
         >
-          {create.isPending ? '등록 중…' : '세일 등록하기'}
+          세일 등록하기
         </Button>
       </div>
     </div>
