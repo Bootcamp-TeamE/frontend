@@ -1,11 +1,9 @@
 import { useState } from 'react'
 import { Link } from 'react-router-dom'
-import { Badge, Button, EmptyState, ListSkeleton, Sheet, TopBar } from '../../components'
+import { Badge, Button, EmptyState, ListSkeleton, SaleThumb, Sheet, TopBar } from '../../components'
 import { useCancelOrder, useOrders, useSale } from '../../hooks'
 import { useAuthStore } from '../../store'
 import { ORDER_STATUS_LABEL, ORDER_STATUS_TONE } from '../../lib/order'
-import { categoryTint } from '../../lib/category'
-import { cn } from '../../lib/cn'
 import { formatWon } from '../../lib/format'
 import type { Order, OrderStatus } from '../../types'
 
@@ -74,14 +72,11 @@ function OrderRow({ order, onCancel }: { order: Order; onCancel: () => void }) {
   return (
     <div className="flex items-center gap-3.5 border-b border-line-soft py-4 last:border-0">
       <Link to={`/orders/${order.id}`} className="flex min-w-0 flex-1 items-center gap-3.5">
-        <div
-          className={cn(
-            'flex h-[60px] w-[60px] shrink-0 items-center justify-center rounded-thumb text-xs font-extrabold',
-            categoryTint(sale?.category_code ?? ''),
-          )}
-        >
-          {(sale?.store_name ?? sale?.title ?? '·').slice(0, 2)}
-        </div>
+        {sale ? (
+          <SaleThumb sale={sale} size="md" label={sale.store_name ?? sale.title} />
+        ) : (
+          <div className="h-[60px] w-[60px] shrink-0 rounded-thumb bg-line" />
+        )}
         <div className="min-w-0 flex-1">
           <div className="flex items-center gap-2">
             <Badge tone={ORDER_STATUS_TONE[order.status]}>{ORDER_STATUS_LABEL[order.status]}</Badge>
