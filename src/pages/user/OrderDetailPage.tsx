@@ -283,7 +283,7 @@ function QrView({
       <div className="flex flex-col items-center px-5 pb-10">
         <p className="mt-4 text-[14px] text-ink-600">매장에서 이 QR을 보여주세요</p>
 
-        <div className="mt-4 rounded-[22px] border border-line-soft bg-surface p-6 shadow-[0_8px_28px_rgba(20,19,15,0.12)]">
+        <div className="mt-4 rounded-[22px] border border-line-soft bg-surface p-6 shadow-card">
           {order.qr_token ? (
             <QRCodeSVG value={order.qr_token} size={184} fgColor="#1F5140" />
           ) : (

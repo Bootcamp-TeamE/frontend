@@ -55,7 +55,7 @@ function FavoriteRow({ store, userId }: { store: Store; userId: number }) {
         onClick={() => toggle.mutate({ storeId: store.id, favorited: true })}
         disabled={toggle.isPending}
         aria-label="관심 매장 해제"
-        className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full text-danger"
+        className="flex h-11 w-11 shrink-0 items-center justify-center rounded-full text-danger"
       >
         <HeartIcon className="h-6 w-6" filled />
       </button>

@@ -106,7 +106,10 @@ export function SaleDetailPage() {
             disabled={toggleFavorite.isPending}
             aria-label={liked ? '관심 매장 해제' : '관심 매장 등록'}
             aria-pressed={liked}
-            className={cn('rounded-full p-1.5', liked ? 'text-danger' : 'text-ink-400')}
+            className={cn(
+              'flex h-11 w-11 items-center justify-center rounded-full',
+              liked ? 'text-danger' : 'text-ink-400',
+            )}
           >
             <HeartIcon className="h-6 w-6" filled={liked} />
           </button>

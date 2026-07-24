@@ -93,7 +93,10 @@ function OrderRow({ order, onCancel }: { order: Order; onCancel: () => void }) {
           {formatWon(order.total_price)}
         </span>
         {cancellable && (
-          <button onClick={onCancel} className="text-[13px] font-semibold text-danger">
+          <button
+            onClick={onCancel}
+            className="-my-1 -mr-1 px-1 py-2 text-[13px] font-semibold text-danger"
+          >
             예약 취소
           </button>
         )}

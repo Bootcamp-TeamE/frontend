@@ -25,7 +25,7 @@ export function TopBar({
       <button
         onClick={() => (onBack ? onBack() : navigate(-1))}
         aria-label="뒤로"
-        className="rounded-full p-1.5 text-ink-900 hover:bg-paper"
+        className="flex h-11 w-11 items-center justify-center rounded-full text-ink-900 hover:bg-paper"
       >
         <ChevronLeftIcon />
       </button>
