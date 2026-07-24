@@ -5,7 +5,7 @@ import { useCategories, useCreateStore, useMyStore, useUpdateStore } from '../..
 import { useAuthStore, useLocationStore } from '../../store'
 
 const inputCls =
-  'w-full rounded-card border border-line-strong bg-surface px-4 py-3 text-[15px] text-ink-900 placeholder:text-ink-300 focus:border-primary focus:outline-none'
+  'w-full rounded-card border border-line-strong bg-surface px-4 py-3 text-[15px] text-ink-900 placeholder:text-ink-300 focus:border-primary focus:outline-none focus-visible:ring-2 focus-visible:ring-primary/30'
 
 export function OwnerStorePage() {
   const ownerId = useAuthStore((s) => s.ownerId)

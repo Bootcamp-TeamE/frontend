@@ -27,7 +27,7 @@ export function OwnerScanPage() {
           onChange={(e) => setCode(e.target.value)}
           onKeyDown={(e) => e.key === 'Enter' && lookup()}
           placeholder="예: A-142"
-          className="w-full rounded-card border border-line-strong bg-surface px-4 py-3 text-[15px] font-semibold text-ink-900 placeholder:text-ink-300 focus:border-primary focus:outline-none"
+          className="w-full rounded-card border border-line-strong bg-surface px-4 py-3 text-[15px] font-semibold text-ink-900 placeholder:text-ink-300 focus:border-primary focus:outline-none focus-visible:ring-2 focus-visible:ring-primary/30"
         />
         <Button className="shrink-0 rounded-[12px]" disabled={!code.trim()} onClick={lookup}>
           조회
