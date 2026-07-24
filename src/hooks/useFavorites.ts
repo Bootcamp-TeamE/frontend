@@ -1,6 +1,7 @@
 import { useMemo } from 'react'
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import { favoritesApi } from '../api'
+import type { Store } from '../types'
 import { qk } from './queryKeys'
 
 export function useFavorites(userId: number) {
@@ -17,7 +18,8 @@ export function useFavorites(userId: number) {
   return { ...query, ids }
 }
 
-// 낙관적 토글 — 즉시 하트 반영 후 서버 반영, 실패 시 롤백.
+// 하트 토글. 관심 수(store.favorite_count)는 낙관적으로 ±1 반영하고,
+// 하트 상태(favorites 목록)와 정확한 수치는 onSettled 무효화로 서버와 확정한다.
 export function useToggleFavorite(userId: number) {
   const queryClient = useQueryClient()
   return useMutation({
@@ -25,6 +27,23 @@ export function useToggleFavorite(userId: number) {
       favorited
         ? favoritesApi.removeFavorite(storeId, userId)
         : favoritesApi.addFavorite(storeId, userId),
-    onSettled: () => queryClient.invalidateQueries({ queryKey: ['favorites'] }),
+    onMutate: async ({ storeId, favorited }) => {
+      await queryClient.cancelQueries({ queryKey: qk.store(storeId) })
+      const prev = queryClient.getQueryData<Store>(qk.store(storeId))
+      if (prev) {
+        queryClient.setQueryData<Store>(qk.store(storeId), {
+          ...prev,
+          favorite_count: Math.max(0, (prev.favorite_count ?? 0) + (favorited ? -1 : 1)),
+        })
+      }
+      return { prev }
+    },
+    onError: (_err, { storeId }, ctx) => {
+      if (ctx?.prev) queryClient.setQueryData(qk.store(storeId), ctx.prev)
+    },
+    onSettled: (_data, _err, { storeId }) => {
+      queryClient.invalidateQueries({ queryKey: qk.favorites(userId) })
+      queryClient.invalidateQueries({ queryKey: qk.store(storeId) })
+    },
   })
 }
