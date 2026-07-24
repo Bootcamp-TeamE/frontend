@@ -8,7 +8,7 @@ import { formatWon } from '../../lib/format'
 export function OwnerScanPage() {
   const [code, setCode] = useState('')
   const [submitted, setSubmitted] = useState('')
-  const { data: order, isFetching, isError, error } = useLookupOrder(submitted, !!submitted)
+  const { data: order, isLoading, isFetching, isError, error } = useLookupOrder(submitted, !!submitted)
   const { data: sale } = useSale(order?.sale_id)
   const pickup = usePickupOrder()
 
@@ -35,19 +35,19 @@ export function OwnerScanPage() {
       </div>
 
       <div className="mt-6">
-        {isFetching && (
+        {isLoading && (
           <div className="flex items-center gap-2 text-sm text-ink-500">
             <Spinner className="h-4 w-4" /> 조회 중…
           </div>
         )}
 
-        {isError && submitted && !isFetching && (
+        {isError && submitted && (
           <div className="rounded-card-lg border border-danger-50 bg-danger-50 px-5 py-4 text-sm text-danger">
             {(error as Error)?.message ?? '주문을 찾을 수 없어요.'}
           </div>
         )}
 
-        {order && !isFetching && (
+        {order && (
           <div className="rounded-card-lg border border-line bg-surface p-6">
             <div className="flex items-center justify-between">
               <span className="font-mono text-[22px] font-extrabold tracking-[2px] text-ink-900">
@@ -72,7 +72,7 @@ export function OwnerScanPage() {
                   fullWidth
                   size="lg"
                   className="rounded-[12px]"
-                  loading={pickup.isPending}
+                  loading={pickup.isPending || isFetching}
                   onClick={() => pickup.mutate(order.id)}
                 >
                   픽업 완료 처리
