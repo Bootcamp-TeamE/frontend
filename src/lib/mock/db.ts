@@ -146,9 +146,10 @@ export function createOrder(userId: number, saleId: number, quantity = 1): Order
     qr_token: null,
     pickup_no: null,
     reserved_at: now.toISOString(),
-    expires_at: new Date(now.getTime() + 10 * 60000).toISOString(),
+    expires_at: new Date(now.getTime() + 5 * 60000).toISOString(),
     paid_at: null,
     picked_up_at: null,
+    refunded_at: null,
   }
   orders.set(order.id, order)
   return order

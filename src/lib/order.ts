@@ -8,6 +8,7 @@ export const ORDER_STATUS_LABEL: Record<OrderStatus, string> = {
   picked_up: '픽업 완료',
   cancelled: '취소됨',
   expired: '예약 만료',
+  refunded: '환불됨',
 }
 
 export const ORDER_STATUS_TONE: Record<OrderStatus, Tone> = {
@@ -16,4 +17,5 @@ export const ORDER_STATUS_TONE: Record<OrderStatus, Tone> = {
   picked_up: 'neutral',
   cancelled: 'danger',
   expired: 'danger',
+  refunded: 'danger',
 }

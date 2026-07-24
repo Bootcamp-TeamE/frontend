@@ -1,5 +1,5 @@
 import { useNavigate } from 'react-router-dom'
-import { BellIcon, BoxIcon, CheckIcon, EmptyState, ListSkeleton } from '../../components'
+import { BellIcon, BoxIcon, CheckIcon, ClockIcon, EmptyState, ListSkeleton } from '../../components'
 import { useMarkAllRead, useMarkRead, useNotifications, useNow } from '../../hooks'
 import { useAuthStore } from '../../store'
 import { cn } from '../../lib/cn'
@@ -9,6 +9,10 @@ import type { Notification } from '../../types'
 const META: Record<Notification['type'], { title: string; body: string }> = {
   order_paid: { title: '결제가 완료됐어요', body: '픽업 시간 안에 매장에서 QR을 보여주세요.' },
   order_picked_up: { title: '픽업이 완료됐어요', body: '상품을 잘 받으셨어요. 이용해 주셔서 감사합니다.' },
+  order_refunded: {
+    title: '자동 환불됐어요',
+    body: '픽업 시간이 지나 결제가 환불 처리됐어요.',
+  },
   sale_nearby: { title: '근처에 새 마감세일이 떴어요', body: '지금 반경 안에서 확인해 보세요.' },
 }
 
@@ -24,7 +28,10 @@ export function NotificationsPage() {
 
   const open = (n: Notification) => {
     if (!n.is_read) markRead.mutate(n.id)
-    if ((n.type === 'order_paid' || n.type === 'order_picked_up') && n.order_id)
+    if (
+      (n.type === 'order_paid' || n.type === 'order_picked_up' || n.type === 'order_refunded') &&
+      n.order_id
+    )
       navigate(`/orders/${n.order_id}`)
     else if (n.type === 'sale_nearby' && n.sale_id) navigate(`/sales/${n.sale_id}`)
   }
@@ -72,7 +79,7 @@ export function NotificationsPage() {
               <span
                 className={cn(
                   'mt-0.5 flex h-9 w-9 shrink-0 items-center justify-center rounded-full',
-                  n.type === 'sale_nearby'
+                  n.type === 'sale_nearby' || n.type === 'order_refunded'
                     ? 'bg-danger-50 text-danger'
                     : 'bg-primary-50 text-primary',
                 )}
@@ -81,6 +88,8 @@ export function NotificationsPage() {
                   <CheckIcon className="h-5 w-5" />
                 ) : n.type === 'order_picked_up' ? (
                   <BoxIcon className="h-5 w-5" />
+                ) : n.type === 'order_refunded' ? (
+                  <ClockIcon className="h-5 w-5" />
                 ) : (
                   <BellIcon className="h-5 w-5" />
                 )}
