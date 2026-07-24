@@ -80,10 +80,16 @@ export function OrderDetailPage() {
           {order.status === 'picked_up' ? '픽업이 완료됐어요' : ''}
           {order.status === 'cancelled' ? '예약이 취소됐어요' : ''}
           {order.status === 'expired' ? '예약이 만료됐어요' : ''}
+          {order.status === 'refunded' ? '자동 환불됐어요' : ''}
         </p>
         {order.status === 'expired' && (
           <p className="text-sm text-ink-400">
-            10분 내 결제가 이뤄지지 않아 재고가 원복됐어요.
+            5분 내 결제가 이뤄지지 않아 재고가 원복됐어요.
+          </p>
+        )}
+        {order.status === 'refunded' && (
+          <p className="text-sm text-ink-400">
+            픽업 시간(30분)이 지나 결제가 환불 처리됐어요.
           </p>
         )}
         <Button variant="secondary" className="mt-2" onClick={() => navigate('/')}>
@@ -170,7 +176,7 @@ function CheckoutView({
 
         {/* 정보 배너 */}
         <div className="mt-4 rounded-card bg-primary-50 px-4 py-3 text-[13px] text-primary-800">
-          결제 후 10분 안에 매장에서 픽업해 주세요.
+          결제 후 30분 안에 매장에서 픽업해 주세요.
         </div>
 
         {/* 결제수단 카드 */}

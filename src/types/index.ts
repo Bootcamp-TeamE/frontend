@@ -1,8 +1,8 @@
 // 백엔드 응답/요청 미러링. 기준: docs/final/05-API명세서.md
 
 export type SaleStatus = 'active' | 'soldout' | 'closed'
-export type OrderStatus = 'reserved' | 'paid' | 'picked_up' | 'cancelled' | 'expired'
-export type NotificationType = 'order_paid' | 'order_picked_up' | 'sale_nearby'
+export type OrderStatus = 'reserved' | 'paid' | 'picked_up' | 'cancelled' | 'expired' | 'refunded'
+export type NotificationType = 'order_paid' | 'order_picked_up' | 'order_refunded' | 'sale_nearby'
 export type UnitType = 'count' | 'weight'
 
 export interface Category {
@@ -89,6 +89,7 @@ export interface Order {
   expires_at: string
   paid_at: string | null
   picked_up_at: string | null
+  refunded_at: string | null
 }
 
 export interface Notification {
