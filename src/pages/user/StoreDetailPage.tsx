@@ -4,6 +4,8 @@ import {
   EmptyState,
   HeartIcon,
   LoadingScreen,
+  SalePrice,
+  SaleThumb,
   TopBar,
 } from '../../components'
 import {
@@ -17,7 +19,8 @@ import {
 import { useAuthStore } from '../../store'
 import { categoryTint } from '../../lib/category'
 import { cn } from '../../lib/cn'
-import { formatHHmm, formatWon } from '../../lib/format'
+import { formatHHmm } from '../../lib/format'
+import { isSoldout } from '../../lib/sale'
 import type { Sale } from '../../types'
 
 export function StoreDetailPage() {
@@ -134,7 +137,7 @@ function StoreSaleRow({
   categoryLabel: string
   unitLabel: string
 }) {
-  const soldout = sale.status !== 'active' || sale.remaining_quantity <= 0
+  const soldout = isSoldout(sale)
   return (
     <div
       className={cn(
@@ -142,24 +145,11 @@ function StoreSaleRow({
         soldout && 'opacity-50',
       )}
     >
-      <div
-        className={cn(
-          'flex h-[60px] w-[60px] shrink-0 items-center justify-center rounded-thumb text-xs font-extrabold',
-          categoryTint(sale.category_code),
-        )}
-      >
-        {categoryLabel.slice(0, 2)}
-      </div>
+      <SaleThumb sale={sale} size="md" label={categoryLabel} />
       <div className="min-w-0 flex-1">
         <p className="truncate text-[14px] font-semibold text-ink-900">{sale.title}</p>
-        <div className="mt-1 flex items-center gap-1.5">
-          <span className="text-[12px] font-extrabold text-primary tnum">{sale.discount_rate}%</span>
-          <span className="text-[11px] text-ink-300 line-through tnum">
-            {formatWon(sale.normal_price)}
-          </span>
-          <span className="text-[15px] font-extrabold text-ink-900 tnum">
-            {formatWon(sale.sale_price)}
-          </span>
+        <div className="mt-1">
+          <SalePrice sale={sale} size="sm" />
         </div>
         <p className="mt-0.5 text-[12px] text-ink-400">
           {soldout ? '품절' : `${sale.remaining_quantity}${unitLabel} 남음`}

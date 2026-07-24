@@ -1,13 +1,12 @@
 import { useEffect, useMemo, useState } from 'react'
 import { Link } from 'react-router-dom'
 import { CustomOverlayMap, Map } from 'react-kakao-maps-sdk'
-import { ChevronRightIcon, SearchIcon, Spinner } from '../../components'
+import { ChevronRightIcon, SalePrice, SaleThumb, SearchIcon, Spinner } from '../../components'
 import { useCategories, useNow, useSearchSales } from '../../hooks'
 import { useLocationStore } from '../../store'
 import { isKakaoKeyConfigured, useKakaoMapLoader } from '../../lib/kakao'
-import { categoryTint } from '../../lib/category'
 import { cn } from '../../lib/cn'
-import { formatDistance, formatWon } from '../../lib/format'
+import { formatDistance } from '../../lib/format'
 import type { Category, Sale } from '../../types'
 
 const RADIUS = 2000
@@ -406,12 +405,7 @@ function SaleRow({ sale }: { sale: Sale }) {
   const dist = formatDistance(sale.store_distance_m)
   return (
     <Link to={`/sales/${sale.id}`} className="flex items-center gap-3 px-4 py-3 active:bg-paper/60">
-      <div
-        className={cn(
-          'thumb-stripe h-12 w-12 shrink-0 rounded-thumb',
-          categoryTint(sale.category_code),
-        )}
-      />
+      <SaleThumb sale={sale} size="sm" />
 
       <div className="min-w-0 flex-1">
         <div className="flex items-center gap-1.5">
@@ -430,19 +424,7 @@ function SaleRow({ sale }: { sale: Sale }) {
         </p>
       </div>
 
-      <div className="flex shrink-0 flex-col items-end">
-        <span className="text-[11px] text-ink-300 line-through tnum">
-          {formatWon(sale.normal_price)}
-        </span>
-        <div className="flex items-baseline gap-1">
-          <span className="text-[13px] font-extrabold text-primary tnum">
-            {sale.discount_rate}%
-          </span>
-          <span className="text-[15px] font-extrabold text-ink-900 tnum">
-            {formatWon(sale.sale_price)}
-          </span>
-        </div>
-      </div>
+      <SalePrice sale={sale} size="sm" align="stacked" />
       <ChevronRightIcon className="h-5 w-5 shrink-0 text-ink-300" />
     </Link>
   )

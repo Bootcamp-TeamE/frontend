@@ -1,9 +1,10 @@
 import { Link } from 'react-router-dom'
 import type { Sale } from '../../types'
 import { cn } from '../../lib/cn'
-import { formatWon, formatDistance, formatHHmm } from '../../lib/format'
-import { categoryTint } from '../../lib/category'
-import { resolveImageUrl } from '../../lib/image'
+import { formatDistance, formatHHmm } from '../../lib/format'
+import { isSoldout } from '../../lib/sale'
+import { SaleThumb } from './SaleThumb'
+import { SalePrice } from './SalePrice'
 
 const CLOSING_SOON_MS = 60 * 60 * 1000
 
@@ -22,7 +23,7 @@ export function SaleCard({
   unitLabel: string
   now: number
 }) {
-  const soldout = sale.status !== 'active' || sale.remaining_quantity <= 0
+  const soldout = isSoldout(sale)
   const deadlineMs = new Date(sale.deadline_at).getTime()
   const closed = deadlineMs <= now
   const closingSoon = !closed && deadlineMs - now < CLOSING_SOON_MS
@@ -36,23 +37,7 @@ export function SaleCard({
         soldout && 'opacity-50',
       )}
     >
-      {/* 썸네일 72 — 이미지 있으면 표시, 없으면 카테고리 톤 줄무늬 폴백 */}
-      {resolveImageUrl(sale.image_url) ? (
-        <img
-          src={resolveImageUrl(sale.image_url) as string}
-          alt={sale.title}
-          className="h-[72px] w-[72px] shrink-0 rounded-thumb object-cover"
-        />
-      ) : (
-        <div
-          className={cn(
-            'thumb-stripe flex h-[72px] w-[72px] shrink-0 items-center justify-center rounded-thumb font-mono text-[11px] font-bold tracking-tight',
-            categoryTint(sale.category_code),
-          )}
-        >
-          {categoryLabel.slice(0, 2)}
-        </div>
-      )}
+      <SaleThumb sale={sale} size="lg" label={categoryLabel} />
 
       {/* 본문 */}
       <div className="flex min-w-0 flex-1 flex-col">
@@ -62,16 +47,8 @@ export function SaleCard({
         </p>
         <p className="mt-0.5 truncate text-[14px] font-semibold text-ink-900">{sale.title}</p>
 
-        <div className="mt-1.5 flex items-center gap-1.5">
-          <span className="text-[13px] font-extrabold text-primary tnum">
-            {sale.discount_rate}%
-          </span>
-          <span className="text-[12px] text-ink-300 line-through tnum">
-            {formatWon(sale.normal_price)}
-          </span>
-          <span className="text-[18px] font-extrabold text-ink-900 tnum">
-            {formatWon(sale.sale_price)}
-          </span>
+        <div className="mt-1.5">
+          <SalePrice sale={sale} size="md" />
         </div>
       </div>
 
