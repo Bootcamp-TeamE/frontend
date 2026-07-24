@@ -24,6 +24,7 @@ import {
 } from '../../hooks'
 import { useAuthStore } from '../../store'
 import { categoryTint } from '../../lib/category'
+import { resolveImageUrl } from '../../lib/image'
 import { cn } from '../../lib/cn'
 import { formatDistance, formatWon, remainingUntil } from '../../lib/format'
 
@@ -113,15 +114,23 @@ export function SaleDetailPage() {
       />
 
       <div className="px-5 pb-32">
-        {/* 이미지 220px */}
-        <div
-          className={cn(
-            'mt-1 flex h-[220px] items-center justify-center rounded-card-lg text-xl font-extrabold',
-            categoryTint(sale.category_code),
-          )}
-        >
-          {catLabel}
-        </div>
+        {/* 이미지 220px — 있으면 표시, 없으면 카테고리 톤 폴백 */}
+        {resolveImageUrl(sale.image_url) ? (
+          <img
+            src={resolveImageUrl(sale.image_url) as string}
+            alt={sale.title}
+            className="mt-1 h-[220px] w-full rounded-card-lg object-cover"
+          />
+        ) : (
+          <div
+            className={cn(
+              'mt-1 flex h-[220px] items-center justify-center rounded-card-lg text-xl font-extrabold',
+              categoryTint(sale.category_code),
+            )}
+          >
+            {catLabel}
+          </div>
+        )}
 
         {/* 상점명·거리 — 매장 상세로 이동 */}
         <Link
@@ -137,6 +146,11 @@ export function SaleDetailPage() {
 
         {/* 상품명 */}
         <h1 className="mt-1 text-[23px] font-bold tracking-[-0.5px] text-ink-900">{sale.title}</h1>
+        {sale.description && (
+          <p className="mt-1.5 whitespace-pre-line text-[14px] leading-relaxed text-ink-600">
+            {sale.description}
+          </p>
+        )}
 
         {/* 가격줄 */}
         <div className="mt-3 flex items-baseline gap-2">
