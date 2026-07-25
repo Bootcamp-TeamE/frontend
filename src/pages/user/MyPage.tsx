@@ -1,8 +1,9 @@
 import type { ReactNode } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
-import { BellIcon, BoxIcon, ChevronRightIcon, HeartIcon, UserIcon } from '../../components'
+import { BellIcon, BoxIcon, ChevronRightIcon, HeartIcon, TopBar, UserIcon } from '../../components'
 import { useFavorites, useOrders } from '../../hooks'
 import { useAuthStore } from '../../store'
+import mascot from '../../assets/mascot.png'
 
 export function MyPage() {
   const userId = useAuthStore((s) => s.userId)
@@ -22,13 +23,11 @@ export function MyPage() {
 
   return (
     <div className="bg-paper">
-      <header className="px-5 pt-6 pb-2">
-        <h1 className="text-[20px] font-extrabold text-ink-900">마이</h1>
-      </header>
+      <TopBar title="마이" back={false} />
 
       {/* 프로필 카드 */}
-      <div className="px-5">
-        <div className="flex items-center gap-3 rounded-card-lg bg-surface p-4">
+      <div className="px-5 pt-1">
+        <div className="flex items-center gap-3 overflow-hidden rounded-card-lg bg-surface p-4">
           <div className="flex h-12 w-12 items-center justify-center rounded-full bg-primary-50 text-primary">
             <UserIcon className="h-6 w-6" />
           </div>
@@ -36,6 +35,12 @@ export function MyPage() {
             <p className="text-[15px] font-bold text-ink-900">사용자 #{userId}</p>
             <p className="mt-0.5 text-[12px] text-ink-400">로그인 연동 전 데모 계정</p>
           </div>
+          <img
+            src={mascot}
+            alt=""
+            aria-hidden
+            className="-mb-4 -mr-1 ml-auto h-[72px] w-auto select-none"
+          />
         </div>
       </div>
 

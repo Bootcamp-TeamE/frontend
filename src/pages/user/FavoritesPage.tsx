@@ -1,9 +1,10 @@
 import { Link } from 'react-router-dom'
 import { Card, EmptyState, HeartIcon, ListSkeleton, TopBar } from '../../components'
-import { useCategories, useFavorites, useToggleFavorite } from '../../hooks'
+import { useCategories, useFavorites, useStoreSales, useToggleFavorite } from '../../hooks'
 import { useAuthStore } from '../../store'
 import { categoryTint } from '../../lib/category'
 import { cn } from '../../lib/cn'
+import { formatHHmm } from '../../lib/format'
 import type { Store } from '../../types'
 
 export function FavoritesPage() {
@@ -34,8 +35,11 @@ export function FavoritesPage() {
 function FavoriteRow({ store, userId }: { store: Store; userId: number }) {
   const { data: categories = [] } = useCategories()
   const toggle = useToggleFavorite(userId)
+  const { data: sales = [] } = useStoreSales(store.id)
   const catLabel =
     categories.find((c) => c.code === store.category_code)?.name_ko ?? store.category_code
+  const activeSales = sales.filter((s) => new Date(s.deadline_at).getTime() > Date.now())
+  const latest = activeSales.map((s) => s.deadline_at).sort().at(-1)
 
   return (
     <Card className="flex items-center gap-3 p-3">
@@ -49,6 +53,11 @@ function FavoriteRow({ store, userId }: { store: Store; userId: number }) {
             {catLabel}
             {store.address ? ` · ${store.address}` : ''}
           </p>
+          {activeSales.length > 0 && latest && (
+            <p className="mt-0.5 text-[12px] font-semibold text-primary">
+              진행 세일 {activeSales.length} · 오늘 {formatHHmm(latest)} 마감
+            </p>
+          )}
         </div>
       </Link>
       <button

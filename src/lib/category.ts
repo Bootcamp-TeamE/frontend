@@ -17,3 +17,20 @@ const TINTS: Record<string, string> = {
 export function categoryTint(code: string): string {
   return TINTS[code] ?? 'bg-[#ddd6c9] text-[#6f6a62]'
 }
+
+// 카테고리 식별용 점 색상(필터 레일에서 시각 구분). 톤은 팔레트에 맞춘 뮤트.
+const DOTS: Record<string, string> = {
+  butcher: '#b26a5c',
+  seafood: '#557a88',
+  greengrocer: '#5f8a54',
+  sidedish: '#b58a3e',
+  ricecake: '#b56f8a',
+  tofu_namul: '#6f9a55',
+  egg_dairy: '#c19a3a',
+  streetfood: '#c07a44',
+  flower: '#a86a9a',
+}
+
+export function categoryColor(code: string): string {
+  return DOTS[code] ?? '#9a8f7e'
+}

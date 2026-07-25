@@ -10,14 +10,32 @@ import {
   Sheet,
   TopBar,
 } from '../../components'
-import { useCancelOrder, useOrders, useSale } from '../../hooks'
-import { useAuthStore } from '../../store'
+import { useCancelOrder, useNow, useOrders, useSale } from '../../hooks'
+import { toast, useAuthStore } from '../../store'
 import { ORDER_STATUS_LABEL, ORDER_STATUS_TONE } from '../../lib/order'
 import { cn } from '../../lib/cn'
 import { formatWon } from '../../lib/format'
 import type { Order, OrderStatus } from '../../types'
 
 const CANCELLABLE: OrderStatus[] = ['reserved', 'paid']
+const PICKUP_HOLD_MS = 30 * 60 * 1000
+
+function mmss(ms: number): string {
+  const s = Math.max(0, Math.floor(ms / 1000))
+  return `${String(Math.floor(s / 60)).padStart(2, '0')}:${String(s % 60).padStart(2, '0')}`
+}
+
+// 픽업 대기 예약의 남은 시간: 결제 전=결제 마감(5분), 결제 후=픽업 마감(30분).
+function pickupUrgency(order: Order, now: number): { label: string; ms: number; danger: boolean } | null {
+  if (order.status === 'paid' && order.paid_at) {
+    const ms = new Date(order.paid_at).getTime() + PICKUP_HOLD_MS - now
+    if (ms > 0) return { label: '픽업 마감', ms, danger: ms <= 5 * 60 * 1000 }
+  } else if (order.status === 'reserved') {
+    const ms = new Date(order.expires_at).getTime() - now
+    if (ms > 0) return { label: '결제 마감', ms, danger: true }
+  }
+  return null
+}
 
 type TabKey = 'waiting' | 'done' | 'cancelled'
 const TABS: { key: TabKey; label: string; match: (s: OrderStatus) => boolean }[] = [
@@ -37,6 +55,7 @@ const EMPTY_MSG: Record<TabKey, string> = {
 
 export function OrdersPage() {
   const userId = useAuthStore((s) => s.userId)
+  const now = useNow(1000)
   const { data: orders, isLoading } = useOrders(userId)
   const sorted = orders ? [...orders].sort((a, b) => b.id - a.id) : undefined
 
@@ -57,15 +76,18 @@ export function OrdersPage() {
     })
 
   const doCancelSelected = async () => {
+    let ok = 0
     for (const id of selected) {
       try {
         await cancel.mutateAsync(id)
+        ok++
       } catch {
         // 이미 취소·만료된 건은 건너뛴다(409). 나머지는 계속 취소.
       }
     }
     setSelected(new Set())
     setConfirmOpen(false)
+    if (ok > 0) toast(`예약 ${ok}건을 취소했어요`, 'success')
   }
 
   return (
@@ -127,6 +149,7 @@ export function OrdersPage() {
             selectable={CANCELLABLE.includes(o.status)}
             checked={selected.has(o.id)}
             onToggle={() => toggle(o.id)}
+            now={now}
           />
         ))}
       </div>
@@ -190,14 +213,17 @@ function OrderRow({
   selectable,
   checked,
   onToggle,
+  now,
 }: {
   order: Order
   selectable: boolean
   checked: boolean
   onToggle: () => void
+  now: number
 }) {
   const { data: sale } = useSale(order.sale_id)
   const saved = sale ? (sale.normal_price - sale.sale_price) * order.quantity : 0
+  const urgency = pickupUrgency(order, now)
 
   return (
     <div className="flex items-center gap-3 border-b border-line-soft py-4 last:border-0">
@@ -221,7 +247,10 @@ function OrderRow({
         )}
       </div>
 
-      <Link to={`/orders/${order.id}`} className="flex min-w-0 flex-1 items-center gap-3">
+      <Link
+        to={order.status === 'paid' ? `/orders/${order.id}?qr=1` : `/orders/${order.id}`}
+        className="flex min-w-0 flex-1 items-center gap-3"
+      >
         {sale ? (
           <SaleThumb sale={sale} size="md" label={sale.store_name ?? sale.title} />
         ) : (
@@ -232,10 +261,20 @@ function OrderRow({
             <Badge tone={ORDER_STATUS_TONE[order.status]}>{ORDER_STATUS_LABEL[order.status]}</Badge>
             <span className="text-[12px] text-ink-400">{order.pickup_no ?? `#${order.id}`}</span>
           </div>
-          <p className="mt-1 truncate text-[14px] font-semibold text-ink-900">
+          <p className="mt-1 truncate text-[15px] font-bold text-ink-900">
             {sale?.title ?? '마감세일'} × {order.quantity}
           </p>
           <p className="mt-0.5 text-[12px] text-ink-400">{sale?.store_name ?? ''}</p>
+          {urgency && (
+            <p
+              className={cn(
+                'mt-0.5 text-[12px] font-bold tnum',
+                urgency.danger ? 'text-danger' : 'text-amber',
+              )}
+            >
+              {urgency.label} {mmss(urgency.ms)} 남음
+            </p>
+          )}
         </div>
       </Link>
 
