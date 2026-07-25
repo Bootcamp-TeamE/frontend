@@ -12,7 +12,7 @@ const navItems = [
 export function OwnerLayout() {
   return (
     <div className="min-h-screen bg-paper">
-      <header className="sticky top-0 z-20 border-b border-line bg-surface/95 backdrop-blur">
+      <header className="sticky top-0 z-20 border-b border-line bg-paper/95 backdrop-blur">
         <div className="mx-auto flex max-w-6xl items-center gap-6 px-6 py-3">
           <span className="flex items-center gap-2 text-lg font-extrabold text-primary">
             <span className="h-2.5 w-2.5 rounded-full bg-primary" />
