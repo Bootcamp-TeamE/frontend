@@ -84,7 +84,7 @@ export function MapPage() {
 
       {/* 상단 플로팅: 검색바 + 필터칩 */}
       <div className="pointer-events-none absolute inset-x-0 top-0 z-20 px-4 pt-4">
-        <div className="pointer-events-auto flex items-center gap-2 rounded-[14px] bg-surface px-4 py-3 shadow-chip">
+        <div className="pointer-events-auto flex items-center gap-2 rounded-[14px] bg-surface px-4 py-3 shadow-chip focus-within:ring-2 focus-within:ring-primary/30">
           <SearchIcon className="h-[18px] w-[18px] text-ink-400" />
           <input
             value={query}

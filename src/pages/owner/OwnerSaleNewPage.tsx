@@ -8,7 +8,7 @@ import { formatWon } from '../../lib/format'
 import { cn } from '../../lib/cn'
 
 const inputCls =
-  'w-full rounded-card border border-line-strong bg-surface px-4 py-3 text-[15px] text-ink-900 placeholder:text-ink-300 focus:border-primary focus:outline-none'
+  'w-full rounded-card border border-line-strong bg-surface px-4 py-3 text-[15px] text-ink-900 placeholder:text-ink-300 focus:border-primary focus:outline-none focus-visible:ring-2 focus-visible:ring-primary/30'
 
 // 마감세일은 대부분 '오늘 몇 시간 뒤' → 빠른 선택 칩.
 const DEADLINE_PRESETS = [1, 2, 3, 6]
