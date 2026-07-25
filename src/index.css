@@ -57,6 +57,7 @@
   --shadow-chip: 0 2px 8px rgba(20, 19, 15, 0.1);
   --shadow-card: 0 8px 28px rgba(20, 19, 15, 0.12);
   --shadow-sheet: 0 -6px 28px rgba(20, 19, 15, 0.18);
+  --shadow-sheet-soft: 0 -6px 18px rgba(20, 19, 15, 0.05); /* 홈 리스트 시트 상단 seam 완화 */
   --shadow-locator: 0 0 0 6px rgba(47, 109, 240, 0.25);
 }
 

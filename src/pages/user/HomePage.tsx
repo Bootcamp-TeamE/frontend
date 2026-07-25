@@ -12,7 +12,7 @@ import { useLocationStore } from '../../store'
 import { cn } from '../../lib/cn'
 import type { Sale } from '../../types'
 
-const RADIUS = 2000
+const RADIUS = 1000
 
 type SortKey = 'nearest' | 'closing' | 'discount'
 const SORTS: { key: SortKey; label: string }[] = [
@@ -123,8 +123,8 @@ export function HomePage() {
       {/* 카테고리 칩 */}
       <CategoryFilter categories={categories} selected={category} onSelect={setCategory} />
 
-      {/* 리스트 */}
-      <div className="mt-1 min-h-[60vh] bg-surface px-5">
+      {/* 리스트 — 크림 상단에서 올라온 시트로 seam 완화 */}
+      <div className="mt-3 min-h-[60vh] rounded-t-[22px] bg-surface px-5 pt-3 shadow-sheet-soft">
         {isLoading && <ListSkeleton count={4} />}
 
         {isError && (

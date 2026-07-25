@@ -1,5 +1,5 @@
 import { useNavigate } from 'react-router-dom'
-import { BellIcon, BoxIcon, CheckIcon, ClockIcon, EmptyState, ListSkeleton } from '../../components'
+import { BellIcon, BoxIcon, CheckIcon, ClockIcon, EmptyState, ListSkeleton, TopBar } from '../../components'
 import { useMarkAllRead, useMarkRead, useNotifications, useNow } from '../../hooks'
 import { useAuthStore } from '../../store'
 import { cn } from '../../lib/cn'
@@ -38,17 +38,20 @@ export function NotificationsPage() {
 
   return (
     <div className="bg-paper">
-      <header className="sticky top-0 z-10 flex items-center justify-between bg-paper/95 px-5 pt-5 pb-3 backdrop-blur">
-        <h1 className="text-[20px] font-extrabold text-ink-900">알림</h1>
-        {hasUnread && (
-          <button
-            onClick={() => markAllRead.mutate(userId)}
-            className="-mr-2 inline-flex min-h-[44px] items-center rounded-lg px-2 text-[13px] font-semibold text-primary hover:bg-primary-50"
-          >
-            모두 읽음
-          </button>
-        )}
-      </header>
+      <TopBar
+        title="알림"
+        back={false}
+        right={
+          hasUnread ? (
+            <button
+              onClick={() => markAllRead.mutate(userId)}
+              className="inline-flex min-h-[44px] items-center rounded-lg px-2 text-[13px] font-semibold text-primary hover:bg-primary-50"
+            >
+              모두 읽음
+            </button>
+          ) : undefined
+        }
+      />
 
       {isLoading && (
         <div className="bg-surface px-5">

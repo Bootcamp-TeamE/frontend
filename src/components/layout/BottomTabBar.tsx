@@ -16,8 +16,8 @@ export function BottomTabBar() {
   const { data: unread = 0 } = useUnreadCount(userId)
 
   return (
-    <nav className="fixed inset-x-0 bottom-0 z-30 border-t border-stone-200 bg-white/95 backdrop-blur">
-      <div className="mx-auto grid max-w-[430px] grid-cols-4">
+    <nav className="fixed bottom-0 left-1/2 z-30 w-full max-w-[430px] -translate-x-1/2 border-t border-stone-200 bg-white/95 backdrop-blur">
+      <div className="grid grid-cols-4">
         {tabs.map(({ to, label, Icon, end, badge }) => (
           <NavLink
             key={to}
