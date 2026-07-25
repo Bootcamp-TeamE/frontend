@@ -115,7 +115,7 @@ export function SubscriptionsPage() {
         </Section>
 
         <Section title="최대 가격 (선택)">
-          <div className="flex items-center gap-2 rounded-card border border-line-strong bg-surface px-4 py-3">
+          <div className="flex items-center gap-2 rounded-card border border-line-strong bg-surface px-4 py-3 focus-within:ring-2 focus-within:ring-primary/30">
             <input
               inputMode="numeric"
               value={maxPrice}
@@ -210,7 +210,7 @@ function HourSelect({ value, onChange }: { value: number; onChange: (v: number) 
     <select
       value={value}
       onChange={(e) => onChange(Number(e.target.value))}
-      className="rounded-card border border-line-strong bg-surface px-3 py-2.5 text-[14px] font-semibold text-ink-900 focus:outline-none"
+      className="rounded-card border border-line-strong bg-surface px-3 py-2.5 text-[14px] font-semibold text-ink-900 focus:border-primary focus:outline-none focus-visible:ring-2 focus-visible:ring-primary/30"
     >
       {HOURS.map((h) => (
         <option key={h} value={h}>

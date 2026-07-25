@@ -1,9 +1,19 @@
 import { useState } from 'react'
 import { Link } from 'react-router-dom'
-import { Badge, Button, EmptyState, ListSkeleton, SaleThumb, Sheet, TopBar } from '../../components'
+import {
+  Badge,
+  Button,
+  CheckIcon,
+  EmptyState,
+  ListSkeleton,
+  SaleThumb,
+  Sheet,
+  TopBar,
+} from '../../components'
 import { useCancelOrder, useOrders, useSale } from '../../hooks'
 import { useAuthStore } from '../../store'
 import { ORDER_STATUS_LABEL, ORDER_STATUS_TONE } from '../../lib/order'
+import { cn } from '../../lib/cn'
 import { formatWon } from '../../lib/format'
 import type { Order, OrderStatus } from '../../types'
 
@@ -14,10 +24,28 @@ export function OrdersPage() {
   const { data: orders, isLoading } = useOrders(userId)
   const sorted = orders ? [...orders].sort((a, b) => b.id - a.id) : undefined
 
-  const [target, setTarget] = useState<Order | null>(null)
+  const [selected, setSelected] = useState<Set<number>>(new Set())
+  const [confirmOpen, setConfirmOpen] = useState(false)
   const cancel = useCancelOrder()
-  const doCancel = () => {
-    if (target) cancel.mutate(target.id, { onSuccess: () => setTarget(null) })
+
+  const toggle = (id: number) =>
+    setSelected((prev) => {
+      const next = new Set(prev)
+      if (next.has(id)) next.delete(id)
+      else next.add(id)
+      return next
+    })
+
+  const doCancelSelected = async () => {
+    for (const id of selected) {
+      try {
+        await cancel.mutateAsync(id)
+      } catch {
+        // 이미 취소·만료된 건은 건너뛴다(409). 나머지는 계속 취소.
+      }
+    }
+    setSelected(new Set())
+    setConfirmOpen(false)
   }
 
   return (
@@ -39,11 +67,51 @@ export function OrdersPage() {
           }
         />
       )}
-      <div className="bg-surface px-5">
-        {sorted?.map((o) => <OrderRow key={o.id} order={o} onCancel={() => setTarget(o)} />)}
+      <div className={cn('bg-surface px-5', selected.size > 0 && 'pb-28')}>
+        {sorted?.map((o) => (
+          <OrderRow
+            key={o.id}
+            order={o}
+            selectable={CANCELLABLE.includes(o.status)}
+            checked={selected.has(o.id)}
+            onToggle={() => toggle(o.id)}
+          />
+        ))}
       </div>
 
-      <Sheet open={!!target} onClose={() => setTarget(null)} title="예약을 취소할까요?">
+      {/* 선택 취소 벌크 바 */}
+      {selected.size > 0 && (
+        <div className="fixed inset-x-0 bottom-0 z-20">
+          <div className="mx-auto max-w-[430px] border-t border-line-soft bg-surface px-5 pt-3 pb-5">
+            <div className="mb-2 flex items-center justify-between text-[13px]">
+              <span className="text-ink-600">
+                <span className="font-bold text-ink-900">{selected.size}</span>건 선택됨
+              </span>
+              <button
+                onClick={() => setSelected(new Set())}
+                className="min-h-[36px] px-1 font-semibold text-ink-500"
+              >
+                선택 해제
+              </button>
+            </div>
+            <Button
+              variant="danger"
+              fullWidth
+              size="lg"
+              className="rounded-[14px]"
+              onClick={() => setConfirmOpen(true)}
+            >
+              선택한 예약 취소하기
+            </Button>
+          </div>
+        </div>
+      )}
+
+      <Sheet
+        open={confirmOpen}
+        onClose={() => setConfirmOpen(false)}
+        title={`예약 ${selected.size}건을 취소할까요?`}
+      >
         <p className="text-sm text-ink-600">
           취소하면 되돌릴 수 없어요. 재고는 다른 손님에게 돌아갑니다.
         </p>
@@ -53,10 +121,10 @@ export function OrdersPage() {
           </p>
         )}
         <div className="mt-4 flex flex-col gap-2">
-          <Button variant="danger" fullWidth loading={cancel.isPending} onClick={doCancel}>
+          <Button variant="danger" fullWidth loading={cancel.isPending} onClick={doCancelSelected}>
             예약 취소하기
           </Button>
-          <Button variant="ghost" fullWidth onClick={() => setTarget(null)}>
+          <Button variant="ghost" fullWidth onClick={() => setConfirmOpen(false)}>
             닫기
           </Button>
         </div>
@@ -65,13 +133,43 @@ export function OrdersPage() {
   )
 }
 
-function OrderRow({ order, onCancel }: { order: Order; onCancel: () => void }) {
+function OrderRow({
+  order,
+  selectable,
+  checked,
+  onToggle,
+}: {
+  order: Order
+  selectable: boolean
+  checked: boolean
+  onToggle: () => void
+}) {
   const { data: sale } = useSale(order.sale_id)
-  const cancellable = CANCELLABLE.includes(order.status)
+  const saved = sale ? (sale.normal_price - sale.sale_price) * order.quantity : 0
 
   return (
-    <div className="flex items-center gap-3.5 border-b border-line-soft py-4 last:border-0">
-      <Link to={`/orders/${order.id}`} className="flex min-w-0 flex-1 items-center gap-3.5">
+    <div className="flex items-center gap-3 border-b border-line-soft py-4 last:border-0">
+      {/* 체크박스 슬롯 — 취소 가능 건만. 슬롯은 항상 차지해 썸네일 정렬 유지 */}
+      <div className="w-6 shrink-0">
+        {selectable && (
+          <button
+            onClick={onToggle}
+            role="checkbox"
+            aria-checked={checked}
+            aria-label="예약 선택"
+            className={cn(
+              'flex h-6 w-6 items-center justify-center rounded-md border transition-colors',
+              checked
+                ? 'border-primary bg-primary text-white'
+                : 'border-line-strong bg-surface text-transparent',
+            )}
+          >
+            <CheckIcon className="h-4 w-4" />
+          </button>
+        )}
+      </div>
+
+      <Link to={`/orders/${order.id}`} className="flex min-w-0 flex-1 items-center gap-3">
         {sale ? (
           <SaleThumb sale={sale} size="md" label={sale.store_name ?? sale.title} />
         ) : (
@@ -88,17 +186,17 @@ function OrderRow({ order, onCancel }: { order: Order; onCancel: () => void }) {
           <p className="mt-0.5 text-[12px] text-ink-400">{sale?.store_name ?? ''}</p>
         </div>
       </Link>
-      <div className="flex shrink-0 flex-col items-end gap-2">
+
+      {/* 우측: 결제금액 + 할인 정보 */}
+      <div className="flex shrink-0 flex-col items-end gap-0.5">
         <span className="text-[15px] font-extrabold text-ink-900 tnum">
           {formatWon(order.total_price)}
         </span>
-        {cancellable && (
-          <button
-            onClick={onCancel}
-            className="-my-1 -mr-1 px-1 py-2 text-[13px] font-semibold text-danger"
-          >
-            예약 취소
-          </button>
+        {sale && (
+          <span className="text-[12px] font-bold text-primary tnum">{sale.discount_rate}% 할인</span>
+        )}
+        {sale && saved > 0 && (
+          <span className="text-[11px] text-ink-400 tnum">{formatWon(saved)} 절약</span>
         )}
       </div>
     </div>
