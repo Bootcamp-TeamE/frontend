@@ -19,14 +19,34 @@ import type { Order, OrderStatus } from '../../types'
 
 const CANCELLABLE: OrderStatus[] = ['reserved', 'paid']
 
+type TabKey = 'waiting' | 'done' | 'cancelled'
+const TABS: { key: TabKey; label: string; match: (s: OrderStatus) => boolean }[] = [
+  { key: 'waiting', label: '픽업 대기', match: (s) => s === 'reserved' || s === 'paid' },
+  { key: 'done', label: '픽업 완료', match: (s) => s === 'picked_up' },
+  {
+    key: 'cancelled',
+    label: '취소',
+    match: (s) => s === 'cancelled' || s === 'expired' || s === 'refunded',
+  },
+]
+const EMPTY_MSG: Record<TabKey, string> = {
+  waiting: '픽업 대기 중인 예약이 없어요',
+  done: '픽업 완료된 예약이 없어요',
+  cancelled: '취소·만료된 예약이 없어요',
+}
+
 export function OrdersPage() {
   const userId = useAuthStore((s) => s.userId)
   const { data: orders, isLoading } = useOrders(userId)
   const sorted = orders ? [...orders].sort((a, b) => b.id - a.id) : undefined
 
+  const [tab, setTab] = useState<TabKey>('waiting')
   const [selected, setSelected] = useState<Set<number>>(new Set())
   const [confirmOpen, setConfirmOpen] = useState(false)
   const cancel = useCancelOrder()
+
+  const activeTab = TABS.find((t) => t.key === tab)!
+  const filtered = sorted?.filter((o) => activeTab.match(o.status))
 
   const toggle = (id: number) =>
     setSelected((prev) => {
@@ -51,12 +71,39 @@ export function OrdersPage() {
   return (
     <>
       <TopBar title="내 예약" />
+
+      {/* 상태 탭 */}
+      <div className="flex gap-1 border-b border-line-soft bg-surface px-3">
+        {TABS.map((t) => {
+          const count = sorted?.filter((o) => t.match(o.status)).length ?? 0
+          const on = tab === t.key
+          return (
+            <button
+              key={t.key}
+              onClick={() => {
+                setTab(t.key)
+                setSelected(new Set())
+              }}
+              className={cn(
+                'relative px-3 py-3 text-[14px] font-semibold transition-colors',
+                on ? 'text-ink-900' : 'text-ink-400',
+              )}
+            >
+              {t.label}
+              {count > 0 && <span className={cn('ml-1', on ? 'text-primary' : 'text-ink-300')}>{count}</span>}
+              {on && <span className="absolute inset-x-3 bottom-0 h-0.5 rounded-full bg-primary" />}
+            </button>
+          )
+        })}
+      </div>
+
       {isLoading && (
         <div className="bg-surface px-5">
           <ListSkeleton count={4} />
         </div>
       )}
-      {sorted && sorted.length === 0 && (
+
+      {!isLoading && sorted && sorted.length === 0 && (
         <EmptyState
           title="예약 내역이 없어요"
           description="마감세일을 예약하면 여기에 표시됩니다."
@@ -67,8 +114,13 @@ export function OrdersPage() {
           }
         />
       )}
+
+      {!isLoading && sorted && sorted.length > 0 && filtered && filtered.length === 0 && (
+        <EmptyState title={EMPTY_MSG[tab]} />
+      )}
+
       <div className={cn('bg-surface px-5', selected.size > 0 && 'pb-28')}>
-        {sorted?.map((o) => (
+        {filtered?.map((o) => (
           <OrderRow
             key={o.id}
             order={o}

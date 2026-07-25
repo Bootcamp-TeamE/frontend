@@ -39,14 +39,56 @@ function clusterize(sales: Sale[], level: number): Cluster[] {
   }))
 }
 
+// 화면 픽셀 거리로 밀집 핀을 묶는다. 지도 투영으로 매장을 화면 좌표로 바꿔
+// thresholdPx 안에 들면 한 묶음 → 줌과 무관하게 가격 핀이 시각적으로 겹치지 않는다.
+// (같은 매장의 여러 세일은 좌표가 같아 항상 한 묶음)
+function clusterizeByPixels(map: kakao.maps.Map, sales: Sale[], thresholdPx: number): Cluster[] {
+  const proj = map.getProjection()
+  const groups: { px: number; py: number; sumLat: number; sumLng: number; sales: Sale[] }[] = []
+  for (const s of sales) {
+    if (s.lat == null || s.lng == null) continue
+    const p = proj.pointFromCoords(new kakao.maps.LatLng(s.lat, s.lng))
+    let target: (typeof groups)[number] | undefined
+    for (const g of groups) {
+      const dx = g.px - p.x
+      const dy = g.py - p.y
+      if (dx * dx + dy * dy <= thresholdPx * thresholdPx) {
+        target = g
+        break
+      }
+    }
+    if (target) {
+      target.sumLat += s.lat
+      target.sumLng += s.lng
+      target.sales.push(s)
+    } else {
+      groups.push({ px: p.x, py: p.y, sumLat: s.lat, sumLng: s.lng, sales: [s] })
+    }
+  }
+  return groups.map((g) => ({
+    key: g.sales.map((s) => s.id).join('-'),
+    lat: g.sumLat / g.sales.length,
+    lng: g.sumLng / g.sales.length,
+    sales: g.sales,
+  }))
+}
+
 export function MapPage() {
   const { lat, lng } = useLocationStore()
+  // 검색 기준점. 초기값은 내 위치(store)지만, 지도를 드래그하면 그 중심으로 옮겨
+  // 내 주변 밖의 세일도 자동으로 다시 불러온다. 내 위치 마커는 lat/lng에 고정.
+  const [searchCenter, setSearchCenter] = useState({ lat, lng })
   const [category, setCategory] = useState<string | undefined>()
   const [query, setQuery] = useState('')
   const [selected, setSelected] = useState<Sale[] | null>(null)
 
   const { data: categories = [] } = useCategories()
-  const { data: sales = [], isLoading } = useSearchSales({ lat, lng, radius: RADIUS, category })
+  const { data: sales = [], isLoading } = useSearchSales({
+    lat: searchCenter.lat,
+    lng: searchCenter.lng,
+    radius: RADIUS,
+    category,
+  })
 
   const filtered = useMemo(() => {
     const q = query.trim()
@@ -63,7 +105,7 @@ export function MapPage() {
     : null
 
   return (
-    <div className="relative h-[calc(100vh-5rem)] overflow-hidden bg-paper">
+    <div className="relative h-[calc(100vh-3.5rem)] overflow-hidden bg-paper">
       {isKakaoKeyConfigured ? (
         <KakaoMap
           lat={lat}
@@ -71,6 +113,7 @@ export function MapPage() {
           sales={filtered}
           selectedKey={selectedKey}
           onSelect={setSelected}
+          onCenterChange={(cLat, cLng) => setSearchCenter({ lat: cLat, lng: cLng })}
         />
       ) : (
         <PseudoMap
@@ -103,7 +146,7 @@ export function MapPage() {
         <div className="pointer-events-none absolute inset-x-0 top-24 z-20 flex justify-center">
           <div className="flex items-center gap-2 rounded-full bg-surface px-4 py-2 text-[13px] font-semibold text-ink-600 shadow-chip">
             <Spinner className="h-4 w-4" />
-            주변 마감세일 불러오는 중…
+            이 지역 마감세일 불러오는 중…
           </div>
         </div>
       )}
@@ -152,16 +195,24 @@ function KakaoMap({
   sales,
   selectedKey,
   onSelect,
+  onCenterChange,
 }: {
   lat: number
   lng: number
   sales: Sale[]
   selectedKey: string | null
   onSelect: (sales: Sale[]) => void
+  onCenterChange: (lat: number, lng: number) => void
 }) {
   const [loading, error] = useKakaoMapLoader()
+  const [map, setMap] = useState<kakao.maps.Map | null>(null)
   const [level, setLevel] = useState(4)
-  const clusters = useMemo(() => clusterize(sales, level), [sales, level])
+  // 지도 준비 전(map=null)엔 격자 클러스터로 임시 표시, 준비되면 픽셀 기준으로 겹침 제거.
+  // 줌(level)이 바뀌면 픽셀 거리가 달라지므로 다시 묶는다(pan은 픽셀 거리 불변).
+  const clusters = useMemo(
+    () => (map ? clusterizeByPixels(map, sales, 66) : clusterize(sales, level)),
+    [map, sales, level],
+  )
 
   if (error) {
     return (
@@ -187,7 +238,12 @@ function KakaoMap({
       center={{ lat, lng }}
       level={4}
       style={{ width: '100%', height: '100%' }}
-      onZoomChanged={(map) => setLevel(map.getLevel())}
+      onCreate={setMap}
+      onZoomChanged={(m) => setLevel(m.getLevel())}
+      onDragEnd={(m) => {
+        const c = m.getCenter()
+        onCenterChange(c.getLat(), c.getLng())
+      }}
     >
       <CustomOverlayMap position={{ lat, lng }}>
         <span className="block h-3.5 w-3.5 rounded-full border-2 border-white bg-info shadow-locator" />
@@ -195,7 +251,11 @@ function KakaoMap({
       {clusters.map((c) => {
         const key = clusterSelectKey(c)
         return (
-          <CustomOverlayMap key={c.key} position={{ lat: c.lat, lng: c.lng }}>
+          <CustomOverlayMap
+            key={c.key}
+            position={{ lat: c.lat, lng: c.lng }}
+            zIndex={selectedKey === key ? 200 : 1}
+          >
             <ClusterMarker
               cluster={c}
               active={selectedKey === key}
@@ -390,7 +450,7 @@ function SalesPanel({ sales, onClose }: { sales: Sale[]; onClose: () => void }) 
         </button>
       </div>
       {/* 고정 높이 + 내부 스크롤: 항목 수와 무관하게 시트 크기 일정, 많으면 드래그로 탐색 */}
-      <div className="no-scrollbar h-[236px] divide-y divide-line-soft overflow-y-auto overscroll-contain pb-2">
+      <div className="no-scrollbar h-[260px] divide-y divide-line-soft overflow-y-auto overscroll-contain pb-2">
         {sorted.map((s) => (
           <SaleRow key={s.id} sale={s} />
         ))}
