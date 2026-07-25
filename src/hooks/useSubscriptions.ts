@@ -28,3 +28,11 @@ export function useUpdateSubscription() {
     onSuccess: () => queryClient.invalidateQueries({ queryKey: ['subscriptions'] }),
   })
 }
+
+export function useDeleteSubscription() {
+  const queryClient = useQueryClient()
+  return useMutation({
+    mutationFn: (id: number) => subscriptionsApi.deleteSubscription(id),
+    onSuccess: () => queryClient.invalidateQueries({ queryKey: ['subscriptions'] }),
+  })
+}

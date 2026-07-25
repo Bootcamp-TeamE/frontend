@@ -1,243 +1,139 @@
-import { useEffect, useState } from 'react'
-import type { ReactNode } from 'react'
-import { Button, LoadingScreen, Sheet, TopBar } from '../../components'
-import {
-  useCategories,
-  useCreateSubscription,
-  useSubscriptions,
-  useUpdateSubscription,
-} from '../../hooks'
-import { useAuthStore, useLocationStore } from '../../store'
-import { cn } from '../../lib/cn'
+import { useMemo, useState } from 'react'
+import { Link } from 'react-router-dom'
+import { Button, EmptyState, LoadingScreen, Sheet, TopBar } from '../../components'
+import { useCategories, useDeleteSubscription, useSubscriptions } from '../../hooks'
+import { useAuthStore } from '../../store'
+import { formatWon } from '../../lib/format'
+import type { Subscription } from '../../types'
 
-const RADII = [1000, 2000, 3000, 5000]
-const DISCOUNTS = [0, 20, 30, 40, 50]
-const HOURS = Array.from({ length: 24 }, (_, i) => i)
+const pad = (h: number) => String(h).padStart(2, '0')
 
 export function SubscriptionsPage() {
   const userId = useAuthStore((s) => s.userId)
-  const { lat, lng } = useLocationStore()
   const { data: subs, isLoading } = useSubscriptions(userId)
   const { data: categories = [] } = useCategories()
-  const create = useCreateSubscription()
-  const update = useUpdateSubscription()
+  const del = useDeleteSubscription()
 
-  const existing = subs?.[0]
+  const catName = useMemo(
+    () => Object.fromEntries(categories.map((c) => [c.code, c.name_ko])),
+    [categories],
+  )
+  const [target, setTarget] = useState<Subscription | null>(null)
 
-  const [cats, setCats] = useState<string[]>([])
-  const [radius, setRadius] = useState(2000)
-  const [minDiscount, setMinDiscount] = useState(0)
-  const [maxPrice, setMaxPrice] = useState('')
-  const [from, setFrom] = useState(9)
-  const [to, setTo] = useState(22)
-  const [push, setPush] = useState(true)
-  const [done, setDone] = useState(false)
-
-  // 기존 구독이 있으면 프리필
-  useEffect(() => {
-    if (!existing) return
-    setCats(existing.categories)
-    setRadius(existing.radius_m)
-    setMinDiscount(existing.min_discount_rate)
-    setMaxPrice(existing.max_price != null ? String(existing.max_price) : '')
-    setFrom(existing.receive_from)
-    setTo(existing.receive_to)
-    setPush(existing.push_enabled)
-  }, [existing])
-
-  if (isLoading) {
-    return (
-      <>
-        <TopBar title="구독 설정" />
-        <LoadingScreen />
-      </>
-    )
+  const doDelete = () => {
+    if (target) del.mutate(target.id, { onSuccess: () => setTarget(null) })
   }
 
-  const toggleCat = (code: string) =>
-    setCats((prev) => (prev.includes(code) ? prev.filter((c) => c !== code) : [...prev, code]))
-
-  const save = () => {
-    const payload = {
-      categories: cats,
-      radius_m: radius,
-      min_discount_rate: minDiscount,
-      max_price: maxPrice ? Number(maxPrice) : null,
-      receive_from: from,
-      receive_to: to,
-      push_enabled: push,
-    }
-    if (existing) {
-      update.mutate({ id: existing.id, payload }, { onSuccess: () => setDone(true) })
-    } else {
-      create.mutate({ user_id: userId, lat, lng, ...payload }, { onSuccess: () => setDone(true) })
-    }
-  }
-
-  const saving = create.isPending || update.isPending
+  const hasSubs = subs && subs.length > 0
 
   return (
     <>
-      <TopBar title="구독 설정" />
-      <div className="px-5 pb-28 pt-2">
-        <p className="text-[13px] text-ink-600">
-          관심 카테고리·조건에 맞는 마감세일이 뜨면 알림으로 알려드려요.
-        </p>
+      <TopBar
+        title="구독"
+        right={
+          hasSubs ? (
+            <Link
+              to="/subscriptions/new"
+              className="inline-flex min-h-[44px] items-center px-2 text-[14px] font-semibold text-primary"
+            >
+              + 추가
+            </Link>
+          ) : undefined
+        }
+      />
 
-        <Section title="관심 카테고리">
-          <div className="flex flex-wrap gap-2">
-            {categories.map((c) => (
-              <Chip key={c.code} active={cats.includes(c.code)} onClick={() => toggleCat(c.code)}>
-                {c.name_ko}
-              </Chip>
-            ))}
-          </div>
-        </Section>
+      {isLoading && <LoadingScreen />}
 
-        <Section title="알림 반경">
-          <div className="flex flex-wrap gap-2">
-            {RADII.map((r) => (
-              <Chip key={r} active={radius === r} onClick={() => setRadius(r)}>
-                {(r / 1000).toLocaleString()}km
-              </Chip>
-            ))}
-          </div>
-        </Section>
+      {subs && subs.length === 0 && (
+        <EmptyState
+          title="아직 구독이 없어요"
+          description="관심 카테고리·조건을 등록하면 맞는 마감세일을 알림으로 받아요."
+          action={
+            <Link to="/subscriptions/new">
+              <Button variant="secondary">구독 추가하기</Button>
+            </Link>
+          }
+        />
+      )}
 
-        <Section title="최소 할인율">
-          <div className="flex flex-wrap gap-2">
-            {DISCOUNTS.map((d) => (
-              <Chip key={d} active={minDiscount === d} onClick={() => setMinDiscount(d)}>
-                {d === 0 ? '전체' : `${d}%+`}
-              </Chip>
-            ))}
-          </div>
-        </Section>
-
-        <Section title="최대 가격 (선택)">
-          <div className="flex items-center gap-2 rounded-card border border-line-strong bg-surface px-4 py-3 focus-within:ring-2 focus-within:ring-primary/30">
-            <input
-              inputMode="numeric"
-              value={maxPrice}
-              onChange={(e) => setMaxPrice(e.target.value.replace(/[^0-9]/g, ''))}
-              placeholder="예: 5000"
-              className="w-full bg-transparent text-[14px] text-ink-900 placeholder:text-ink-300 focus:outline-none"
-            />
-            <span className="shrink-0 text-[14px] text-ink-400">원 이하</span>
-          </div>
-        </Section>
-
-        <Section title="받을 시간대">
-          <div className="flex items-center gap-2">
-            <HourSelect value={from} onChange={setFrom} />
-            <span className="text-ink-400">~</span>
-            <HourSelect value={to} onChange={setTo} />
-          </div>
-        </Section>
-
-        <div className="mt-6 flex items-center justify-between rounded-card border border-line-soft bg-surface px-4 py-4">
-          <div>
-            <p className="text-[14px] font-semibold text-ink-900">푸시 알림</p>
-            <p className="mt-0.5 text-[12px] text-ink-400">끄면 앱 안에서만 표시돼요.</p>
-          </div>
-          <Toggle on={push} onChange={setPush} />
-        </div>
+      <div className="space-y-3 px-5 py-3">
+        {subs?.map((sub) => (
+          <SubscriptionCard
+            key={sub.id}
+            sub={sub}
+            catName={catName}
+            onDelete={() => setTarget(sub)}
+          />
+        ))}
       </div>
 
-      <div className="fixed inset-x-0 bottom-0 z-20">
-        <div className="mx-auto max-w-[430px] border-t border-line-soft bg-surface px-5 pt-3 pb-5">
-          <Button
-            fullWidth
-            size="lg"
-            className="rounded-[14px]"
-            disabled={cats.length === 0}
-            loading={saving}
-            onClick={save}
-          >
-            {existing ? '구독 수정하기' : '구독 시작하기'}
+      <Sheet
+        open={!!target}
+        onClose={() => setTarget(null)}
+        title="이 구독을 삭제할까요?"
+      >
+        <p className="text-sm text-ink-600">삭제하면 이 조건의 알림을 더 이상 받지 않아요.</p>
+        {del.isError && (
+          <p className="mt-2 text-sm text-danger">
+            {(del.error as Error)?.message ?? '삭제에 실패했어요.'}
+          </p>
+        )}
+        <div className="mt-4 flex flex-col gap-2">
+          <Button variant="danger" fullWidth loading={del.isPending} onClick={doDelete}>
+            삭제하기
           </Button>
-          {cats.length === 0 && (
-            <p className="mt-2 text-center text-[12px] text-ink-400">
-              카테고리를 하나 이상 선택해 주세요.
-            </p>
-          )}
+          <Button variant="ghost" fullWidth onClick={() => setTarget(null)}>
+            닫기
+          </Button>
         </div>
-      </div>
-
-      <Sheet open={done} onClose={() => setDone(false)} title="구독을 저장했어요">
-        <p className="text-sm text-ink-600">조건에 맞는 마감세일이 뜨면 알림으로 알려드릴게요.</p>
-        <Button variant="secondary" fullWidth className="mt-4" onClick={() => setDone(false)}>
-          확인
-        </Button>
       </Sheet>
     </>
   )
 }
 
-function Section({ title, children }: { title: string; children: ReactNode }) {
-  return (
-    <div className="mt-6">
-      <h2 className="mb-2 text-[14px] font-bold text-ink-900">{title}</h2>
-      {children}
-    </div>
-  )
-}
-
-function Chip({
-  active,
-  onClick,
-  children,
+function SubscriptionCard({
+  sub,
+  catName,
+  onDelete,
 }: {
-  active: boolean
-  onClick: () => void
-  children: ReactNode
+  sub: Subscription
+  catName: Record<string, string>
+  onDelete: () => void
 }) {
-  return (
-    <button
-      onClick={onClick}
-      className={cn(
-        'rounded-pill px-3.5 py-2 text-[13px] font-semibold transition-colors',
-        active ? 'bg-primary text-white' : 'border border-line-strong bg-surface text-ink-600',
-      )}
-    >
-      {children}
-    </button>
-  )
-}
+  const cats = sub.categories.map((c) => catName[c] ?? c).join(' · ')
 
-function HourSelect({ value, onChange }: { value: number; onChange: (v: number) => void }) {
   return (
-    <select
-      value={value}
-      onChange={(e) => onChange(Number(e.target.value))}
-      className="rounded-card border border-line-strong bg-surface px-3 py-2.5 text-[14px] font-semibold text-ink-900 focus:border-primary focus:outline-none focus-visible:ring-2 focus-visible:ring-primary/30"
-    >
-      {HOURS.map((h) => (
-        <option key={h} value={h}>
-          {String(h).padStart(2, '0')}:00
-        </option>
-      ))}
-    </select>
-  )
-}
-
-function Toggle({ on, onChange }: { on: boolean; onChange: (v: boolean) => void }) {
-  return (
-    <button
-      onClick={() => onChange(!on)}
-      role="switch"
-      aria-checked={on}
-      className={cn(
-        'relative h-7 w-12 shrink-0 rounded-full transition-colors',
-        on ? 'bg-primary' : 'bg-line-strong',
-      )}
-    >
-      <span
-        className={cn(
-          'absolute top-0.5 h-6 w-6 rounded-full bg-white shadow transition-transform',
-          on ? 'translate-x-[22px]' : 'translate-x-0.5',
-        )}
-      />
-    </button>
+    <div className="rounded-card-lg border border-line bg-surface p-4">
+      <div className="flex items-start justify-between gap-2">
+        <p className="min-w-0 flex-1 text-[15px] font-bold text-ink-900">
+          {cats || '전체 카테고리'}
+        </p>
+        <div className="flex shrink-0 items-center gap-1">
+          <Link
+            to={`/subscriptions/${sub.id}/edit`}
+            className="rounded-lg px-2 py-1.5 text-[13px] font-semibold text-ink-600 hover:bg-paper"
+          >
+            수정
+          </Link>
+          <button
+            onClick={onDelete}
+            className="rounded-lg px-2 py-1.5 text-[13px] font-semibold text-danger hover:bg-danger-50"
+          >
+            삭제
+          </button>
+        </div>
+      </div>
+      <div className="mt-2 flex flex-wrap gap-x-3 gap-y-1 text-[12px] text-ink-500">
+        <span>반경 {(sub.radius_m / 1000).toLocaleString()}km</span>
+        <span>{sub.min_discount_rate === 0 ? '전체 할인' : `${sub.min_discount_rate}%+`}</span>
+        {sub.max_price != null && <span>{formatWon(sub.max_price)} 이하</span>}
+        <span>
+          {pad(sub.receive_from)}~{pad(sub.receive_to)}시
+        </span>
+        <span className={sub.push_enabled ? 'text-primary' : 'text-ink-400'}>
+          푸시 {sub.push_enabled ? 'ON' : 'OFF'}
+        </span>
+      </div>
+    </div>
   )
 }

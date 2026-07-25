@@ -15,6 +15,7 @@ import {
   OwnerStorePage,
   SaleDetailPage,
   StoreDetailPage,
+  SubscriptionFormPage,
   SubscriptionsPage,
 } from './pages'
 
@@ -37,6 +38,8 @@ function App() {
         <Route path="/orders/:id" element={<OrderDetailPage />} />
         <Route path="/favorites" element={<FavoritesPage />} />
         <Route path="/subscriptions" element={<SubscriptionsPage />} />
+        <Route path="/subscriptions/new" element={<SubscriptionFormPage />} />
+        <Route path="/subscriptions/:id/edit" element={<SubscriptionFormPage />} />
       </Route>
 
       {/* 점주 - 와이드 셸 */}
