@@ -1,7 +1,7 @@
-import type { ComponentType } from 'react'
+import { Fragment, type ComponentType } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { BellIcon, BoxIcon, CheckIcon, ClockIcon, EmptyState, ListSkeleton, TopBar } from '../../components'
-import { useMarkAllRead, useMarkRead, useNotifications, useNow } from '../../hooks'
+import { useInfiniteScroll, useMarkAllRead, useMarkRead, useNotifications, useNow } from '../../hooks'
 import { useAuthStore } from '../../store'
 import { cn } from '../../lib/cn'
 import { formatRelative } from '../../lib/format'
@@ -38,6 +38,18 @@ const META: Record<
   },
 }
 
+function dayLabel(iso: string, now: number): string {
+  const startOfToday = new Date(now)
+  startOfToday.setHours(0, 0, 0, 0)
+  const startOfThat = new Date(iso)
+  startOfThat.setHours(0, 0, 0, 0)
+  const diff = Math.round((startOfToday.getTime() - startOfThat.getTime()) / 86400000)
+  if (diff <= 0) return '오늘'
+  if (diff === 1) return '어제'
+  const d = new Date(iso)
+  return `${d.getMonth() + 1}월 ${d.getDate()}일`
+}
+
 export function NotificationsPage() {
   const userId = useAuthStore((s) => s.userId)
   const now = useNow(30000)
@@ -47,6 +59,7 @@ export function NotificationsPage() {
   const navigate = useNavigate()
 
   const hasUnread = items?.some((n) => !n.is_read)
+  const { visible, hasMore, sentinelRef } = useInfiniteScroll(items ?? [], { pageSize: 20 })
 
   const open = (n: Notification) => {
     if (!n.is_read) markRead.mutate(n.id)
@@ -67,7 +80,7 @@ export function NotificationsPage() {
           hasUnread ? (
             <button
               onClick={() => markAllRead.mutate(userId)}
-              className="inline-flex min-h-[44px] items-center rounded-lg px-2 text-[13px] font-semibold text-primary hover:bg-primary-50"
+              className="inline-flex items-center rounded-lg px-2 py-2 text-[13px] font-semibold text-primary hover:bg-primary-50"
             >
               모두 읽음
             </button>
@@ -89,14 +102,19 @@ export function NotificationsPage() {
       )}
 
       <div className="bg-surface">
-        {items?.map((n) => {
+        {visible.map((n, i) => {
           const meta = META[n.type]
           if (!meta) return null
           const { Icon } = meta
+          const label = dayLabel(n.created_at, now)
+          const showHeader = i === 0 || dayLabel(visible[i - 1].created_at, now) !== label
           return (
-            <button
-              key={n.id}
-              onClick={() => open(n)}
+            <Fragment key={n.id}>
+              {showHeader && (
+                <p className="bg-paper px-5 pt-4 pb-1.5 text-[12px] font-bold text-ink-400">{label}</p>
+              )}
+              <button
+                onClick={() => open(n)}
               className={cn(
                 'flex w-full items-start gap-3 border-b border-line-soft px-5 py-4 text-left last:border-0',
                 !n.is_read && 'bg-primary-50/40',
@@ -116,9 +134,15 @@ export function NotificationsPage() {
                 <p className="mt-1 text-[12px] text-ink-400">{formatRelative(n.created_at, now)}</p>
               </div>
               {!n.is_read && <span className="mt-1.5 h-2 w-2 shrink-0 rounded-full bg-primary" />}
-            </button>
+              </button>
+            </Fragment>
           )
         })}
+        {hasMore && (
+          <div ref={sentinelRef} className="py-4 text-center text-[12px] text-ink-400">
+            더 불러오는 중…
+          </div>
+        )}
       </div>
     </div>
   )

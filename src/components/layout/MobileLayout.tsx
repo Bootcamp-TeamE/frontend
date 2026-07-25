@@ -1,6 +1,7 @@
 import { Outlet } from 'react-router-dom'
 import { BottomTabBar } from './BottomTabBar'
 import { DevRoleSwitcher } from '../DevRoleSwitcher'
+import { Toaster } from '../Toaster'
 import { useNotificationStream } from '../../hooks'
 import { useAuthStore } from '../../store'
 
@@ -14,6 +15,7 @@ export function MobileLayout() {
         <Outlet />
       </main>
       <BottomTabBar />
+      <Toaster />
       <DevRoleSwitcher />
     </div>
   )

@@ -9,6 +9,7 @@ import {
   useUpdateSubscription,
 } from '../../hooks'
 import { useAuthStore, useLocationStore } from '../../store'
+import { categoryColor } from '../../lib/category'
 import { cn } from '../../lib/cn'
 
 const RADII = [1000, 2000, 3000, 5000]
@@ -104,7 +105,12 @@ export function SubscriptionFormPage() {
         <Section title="관심 카테고리">
           <div className="flex flex-wrap gap-2">
             {categories.map((c) => (
-              <Chip key={c.code} active={cats.includes(c.code)} onClick={() => toggleCat(c.code)}>
+              <Chip
+                key={c.code}
+                active={cats.includes(c.code)}
+                color={categoryColor(c.code)}
+                onClick={() => toggleCat(c.code)}
+              >
                 {c.name_ko}
               </Chip>
             ))}
@@ -197,19 +203,32 @@ function Chip({
   active,
   onClick,
   children,
+  color,
 }: {
   active: boolean
   onClick: () => void
   children: ReactNode
+  color?: string
 }) {
   return (
     <button
       onClick={onClick}
+      style={active && color ? { backgroundColor: color, borderColor: color } : undefined}
       className={cn(
-        'rounded-pill px-3.5 py-2 text-[13px] font-semibold transition-colors',
-        active ? 'bg-primary text-white' : 'border border-line-strong bg-surface text-ink-600',
+        'flex items-center gap-1.5 rounded-pill border px-3.5 py-2 text-[13px] font-semibold transition-colors',
+        active
+          ? color
+            ? 'text-white'
+            : 'border-primary bg-primary text-white'
+          : 'border-line-strong bg-surface text-ink-600',
       )}
     >
+      {color && (
+        <span
+          className="h-1.5 w-1.5 shrink-0 rounded-full"
+          style={{ backgroundColor: active ? '#ffffff' : color }}
+        />
+      )}
       {children}
     </button>
   )
@@ -238,14 +257,14 @@ function Toggle({ on, onChange }: { on: boolean; onChange: (v: boolean) => void 
       role="switch"
       aria-checked={on}
       className={cn(
-        'relative h-7 w-12 shrink-0 rounded-full transition-colors',
+        'relative h-6 w-11 shrink-0 rounded-full transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-primary/30',
         on ? 'bg-primary' : 'bg-line-strong',
       )}
     >
       <span
         className={cn(
-          'absolute top-0.5 h-6 w-6 rounded-full bg-white shadow transition-transform',
-          on ? 'translate-x-[22px]' : 'translate-x-0.5',
+          'absolute left-0.5 top-0.5 h-5 w-5 rounded-full bg-white shadow-sm transition-transform',
+          on && 'translate-x-5',
         )}
       />
     </button>

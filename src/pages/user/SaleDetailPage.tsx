@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import { Link, useNavigate, useParams } from 'react-router-dom'
 import {
   Button,
@@ -8,12 +8,15 @@ import {
   EmptyState,
   HeartIcon,
   LoadingScreen,
+  LocationIcon,
   QuantityStepper,
+  ShareIcon,
   Sheet,
   TopBar,
 } from '../../components'
 import {
   useCategories,
+  useCopy,
   useCreateOrder,
   useFavorites,
   useNow,
@@ -22,7 +25,7 @@ import {
   useToggleFavorite,
   useUnits,
 } from '../../hooks'
-import { useAuthStore } from '../../store'
+import { toast, useAuthStore, useLocationStore, useRecentStore } from '../../store'
 import { categoryTint } from '../../lib/category'
 import { resolveImageUrl } from '../../lib/image'
 import { cn } from '../../lib/cn'
@@ -35,6 +38,7 @@ export function SaleDetailPage() {
   const saleId = Number(id)
   const navigate = useNavigate()
   const userId = useAuthStore((s) => s.userId)
+  const origin = useLocationStore()
   const now = useNow(1000)
 
   const { data: sale, isLoading, isError } = useSale(saleId)
@@ -47,6 +51,11 @@ export function SaleDetailPage() {
   const { ids: favoriteIds } = useFavorites(userId)
   const toggleFavorite = useToggleFavorite(userId)
   const liked = sale?.store_id != null && favoriteIds.has(sale.store_id)
+  const { copy } = useCopy()
+  const addRecent = useRecentStore((s) => s.add)
+  useEffect(() => {
+    if (sale) addRecent({ ...sale, store_name: sale.store_name ?? store?.name })
+  }, [sale, store, addRecent])
 
   if (isLoading) {
     return (
@@ -86,6 +95,26 @@ export function SaleDetailPage() {
   const qty = qtyRaw ?? sale.min_order
   const total = qty * sale.sale_price
   const dist = formatDistance(sale.store_distance_m)
+  const storeName = sale.store_name ?? store?.name ?? '매장'
+  const destLat = store?.lat ?? sale.lat
+  const destLng = store?.lng ?? sale.lng
+
+  const share = () => {
+    const url = window.location.href
+    if (navigator.share) {
+      navigator.share({ title: `${sale.title} · 마감할인`, url }).catch(() => {})
+      return
+    }
+    copy(url)
+    toast('링크가 복사됐어요', 'success')
+  }
+  const openDirections = () => {
+    if (destLat == null || destLng == null) return
+    // 출발지는 서비스 내 현재 위치(GPS 허용 시 '현재 위치', 아니면 기본 위치).
+    const from = `${encodeURIComponent(origin.label)},${origin.lat},${origin.lng}`
+    const to = `${encodeURIComponent(storeName)},${destLat},${destLng}`
+    window.open(`https://map.kakao.com/link/from/${from}/to/${to}`, '_blank', 'noopener')
+  }
 
   const reserve = () =>
     createOrder.mutate(
@@ -98,21 +127,30 @@ export function SaleDetailPage() {
       <TopBar
         title="상품 상세"
         right={
-          <button
-            onClick={() =>
-              sale?.store_id != null &&
-              toggleFavorite.mutate({ storeId: sale.store_id, favorited: liked })
-            }
-            disabled={toggleFavorite.isPending}
-            aria-label={liked ? '관심 매장 해제' : '관심 매장 등록'}
-            aria-pressed={liked}
-            className={cn(
-              'flex h-11 w-11 items-center justify-center rounded-full',
-              liked ? 'text-danger' : 'text-ink-400',
-            )}
-          >
-            <HeartIcon className="h-6 w-6" filled={liked} />
-          </button>
+          <div className="flex items-center">
+            <button
+              onClick={share}
+              aria-label="공유"
+              className="flex h-11 w-11 items-center justify-center rounded-full text-ink-500"
+            >
+              <ShareIcon className="h-[22px] w-[22px]" />
+            </button>
+            <button
+              onClick={() =>
+                sale?.store_id != null &&
+                toggleFavorite.mutate({ storeId: sale.store_id, favorited: liked })
+              }
+              disabled={toggleFavorite.isPending}
+              aria-label={liked ? '관심 매장 해제' : '관심 매장 등록'}
+              aria-pressed={liked}
+              className={cn(
+                'flex h-11 w-11 items-center justify-center rounded-full',
+                liked ? 'text-danger' : 'text-ink-400',
+              )}
+            >
+              <HeartIcon className="h-6 w-6" filled={liked} />
+            </button>
+          </div>
         }
       />
 
@@ -135,17 +173,26 @@ export function SaleDetailPage() {
           </div>
         )}
 
-        {/* 상점명·거리 — 매장 상세로 이동 */}
-        <Link
-          to={`/stores/${sale.store_id}`}
-          className="mt-4 flex items-center gap-1 text-[13px] text-ink-600"
-        >
-          <span className="font-semibold text-ink-900">
-            {sale.store_name ?? store?.name ?? '매장'}
-          </span>
-          {dist && <span className="text-ink-400"> · {dist}</span>}
-          <ChevronRightIcon className="h-4 w-4 text-ink-300" />
-        </Link>
+        {/* 상점명·거리 — 매장 상세 이동 + 길찾기 */}
+        <div className="mt-4 flex items-center justify-between gap-2">
+          <Link
+            to={`/stores/${sale.store_id}`}
+            className="flex min-w-0 items-center gap-1 text-[13px] text-ink-600"
+          >
+            <span className="truncate font-semibold text-ink-900">{storeName}</span>
+            {dist && <span className="shrink-0 text-ink-400"> · {dist}</span>}
+            <ChevronRightIcon className="h-4 w-4 shrink-0 text-ink-300" />
+          </Link>
+          {destLat != null && destLng != null && (
+            <button
+              onClick={openDirections}
+              className="flex shrink-0 items-center gap-1 rounded-pill border border-line-strong bg-surface px-3 py-1.5 text-[12px] font-semibold text-ink-700"
+            >
+              <LocationIcon className="h-4 w-4" />
+              길찾기
+            </button>
+          )}
+        </div>
 
         {/* 상품명 */}
         <h1 className="mt-1 text-[23px] font-bold tracking-[-0.5px] text-ink-900">{sale.title}</h1>

@@ -28,6 +28,10 @@ export function SaleCard({
   const closed = deadlineMs <= now
   const closingSoon = !closed && deadlineMs - now < CLOSING_SOON_MS
   const dist = formatDistance(sale.store_distance_m)
+  const total = sale.total_quantity || 0
+  const remainPct = total > 0 ? Math.max(0, Math.min(100, (sale.remaining_quantity / total) * 100)) : 0
+  // 남은 수량 게이지 색 — 색=긴박도(뮤트 톤으로 서비스 팔레트와 조화).
+  const barColor = remainPct <= 20 ? '#c0392b' : remainPct <= 50 ? '#c49a3e' : '#557a88'
 
   return (
     <Link
@@ -45,15 +49,20 @@ export function SaleCard({
           {sale.store_name ?? categoryLabel}
           {dist && <span className="font-normal text-ink-400"> · {dist}</span>}
         </p>
-        <p className="mt-0.5 truncate text-[14px] font-semibold text-ink-900">{sale.title}</p>
+        <p className="mt-0.5 truncate text-[15px] font-bold text-ink-900">{sale.title}</p>
 
         <div className="mt-1.5">
           <SalePrice sale={sale} size="md" />
         </div>
       </div>
 
-      {/* 우측 메타: 마감시각 / 남은 수량 */}
+      {/* 우측 메타: 마감임박 / 마감시각 / 남은 수량 게이지 */}
       <div className="flex shrink-0 flex-col items-end gap-1 self-stretch pt-0.5">
+        {closingSoon && (
+          <span className="animate-pulse rounded-full bg-danger-50 px-1.5 py-0.5 text-[10px] font-bold text-danger">
+            마감임박
+          </span>
+        )}
         <span
           className={cn(
             'font-mono text-[13px] font-bold tnum',
@@ -62,9 +71,19 @@ export function SaleCard({
         >
           {closed ? '마감' : formatHHmm(sale.deadline_at)}
         </span>
-        <span className="mt-auto text-[12px] text-ink-400">
-          {soldout ? '품절' : `${sale.remaining_quantity}${unitLabel} 남음`}
-        </span>
+        <div className="mt-auto flex flex-col items-end gap-1">
+          <span className="text-[12px] text-ink-400">
+            {soldout ? '품절' : `${sale.remaining_quantity}${unitLabel} 남음`}
+          </span>
+          {!soldout && total > 0 && (
+            <div className="h-1 w-14 overflow-hidden rounded-full bg-line">
+              <div
+                className="h-full rounded-full"
+                style={{ width: `${remainPct}%`, backgroundColor: barColor }}
+              />
+            </div>
+          )}
+        </div>
       </div>
     </Link>
   )

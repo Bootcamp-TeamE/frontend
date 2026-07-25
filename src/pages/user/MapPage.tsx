@@ -2,10 +2,11 @@ import { useEffect, useMemo, useState } from 'react'
 import { Link } from 'react-router-dom'
 import { CustomOverlayMap, Map } from 'react-kakao-maps-sdk'
 import { ChevronRightIcon, SalePrice, SaleThumb, SearchIcon, Spinner } from '../../components'
-import { useCategories, useNow, useSearchSales } from '../../hooks'
+import { useCategories, useInfiniteScroll, useNow, useSearchSales } from '../../hooks'
 import { useLocationStore } from '../../store'
 import { isKakaoKeyConfigured, useKakaoMapLoader } from '../../lib/kakao'
 import { cn } from '../../lib/cn'
+import { categoryColor } from '../../lib/category'
 import { formatDistance } from '../../lib/format'
 import type { Category, Sale } from '../../types'
 
@@ -170,21 +171,37 @@ function MapChips({
   selected: string | undefined
   onSelect: (c: string | undefined) => void
 }) {
-  const chip = (active: boolean) =>
-    cn(
-      'shrink-0 rounded-pill border px-3.5 py-1.5 text-[13px] font-semibold shadow-chip transition-colors',
-      active ? 'border-primary bg-primary text-white' : 'border-line-strong bg-surface text-ink-600',
-    )
+  const base =
+    'flex shrink-0 items-center gap-1.5 rounded-pill border px-3.5 py-1.5 text-[13px] font-semibold shadow-chip transition-colors'
   return (
     <>
-      <button className={chip(!selected)} onClick={() => onSelect(undefined)}>
+      <button
+        onClick={() => onSelect(undefined)}
+        className={cn(
+          base,
+          !selected ? 'border-primary bg-primary text-white' : 'border-line-strong bg-surface text-ink-600',
+        )}
+      >
         전체
       </button>
-      {categories.map((c) => (
-        <button key={c.code} className={chip(selected === c.code)} onClick={() => onSelect(c.code)}>
-          {c.name_ko}
-        </button>
-      ))}
+      {categories.map((c) => {
+        const active = selected === c.code
+        const color = categoryColor(c.code)
+        return (
+          <button
+            key={c.code}
+            onClick={() => onSelect(c.code)}
+            style={active ? { backgroundColor: color, borderColor: color } : undefined}
+            className={cn(base, active ? 'text-white' : 'border-line-strong bg-surface text-ink-600')}
+          >
+            <span
+              className="h-1.5 w-1.5 shrink-0 rounded-full"
+              style={{ backgroundColor: active ? '#ffffff' : color }}
+            />
+            {c.name_ko}
+          </button>
+        )
+      })}
     </>
   )
 }
@@ -438,6 +455,13 @@ function SalesPanel({ sales, onClose }: { sales: Sale[]; onClose: () => void }) 
     () => [...sales].sort((a, b) => (a.store_distance_m ?? 9e9) - (b.store_distance_m ?? 9e9)),
     [sales],
   )
+  // 내부 스크롤 영역 기준 20개씩 무한 스크롤(클러스터가 바뀌면 처음부터).
+  const [scrollEl, setScrollEl] = useState<HTMLDivElement | null>(null)
+  const { visible, hasMore, sentinelRef } = useInfiniteScroll(sorted, {
+    pageSize: 20,
+    resetKey: `${sorted.length}:${sorted[0]?.id ?? 0}`,
+    root: scrollEl,
+  })
   return (
     <div className="mx-auto max-w-[430px] overflow-hidden rounded-t-2xl bg-surface shadow-sheet">
       <div className="mx-auto mt-2 h-1 w-10 rounded-full bg-line-strong" />
@@ -449,11 +473,19 @@ function SalesPanel({ sales, onClose }: { sales: Sale[]; onClose: () => void }) 
           닫기
         </button>
       </div>
-      {/* 고정 높이 + 내부 스크롤: 항목 수와 무관하게 시트 크기 일정, 많으면 드래그로 탐색 */}
-      <div className="no-scrollbar h-[260px] divide-y divide-line-soft overflow-y-auto overscroll-contain pb-2">
-        {sorted.map((s) => (
+      {/* 고정 높이 + 내부 스크롤: 항목 수와 무관하게 시트 크기 일정, 20개씩 더 불러옴 */}
+      <div
+        ref={setScrollEl}
+        className="no-scrollbar h-[260px] divide-y divide-line-soft overflow-y-auto overscroll-contain pb-2"
+      >
+        {visible.map((s) => (
           <SaleRow key={s.id} sale={s} />
         ))}
+        {hasMore && (
+          <div ref={sentinelRef} className="py-3 text-center text-[12px] text-ink-400">
+            더 보기…
+          </div>
+        )}
       </div>
     </div>
   )
@@ -469,8 +501,8 @@ function SaleRow({ sale }: { sale: Sale }) {
 
       <div className="min-w-0 flex-1">
         <div className="flex items-center gap-1.5">
-          <p className="truncate text-[14px] font-bold text-ink-900">
-            {sale.store_name ?? sale.title}
+          <p className="truncate text-[15px] font-bold text-ink-900">
+            {sale.title}
           </p>
           {soon && (
             <span className="shrink-0 rounded-full bg-danger-50 px-1.5 py-0.5 text-[10px] font-bold text-danger">
@@ -479,7 +511,7 @@ function SaleRow({ sale }: { sale: Sale }) {
           )}
         </div>
         <p className="mt-0.5 truncate text-[12px] text-ink-400">
-          {sale.title}
+          {sale.store_name ?? sale.title}
           {dist && ` · ${dist}`} · {sale.remaining_quantity}개 남음
         </p>
       </div>

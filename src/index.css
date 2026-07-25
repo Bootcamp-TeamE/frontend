@@ -4,7 +4,7 @@
 /*
  * 마감할인 — 디자인 토큰
  * 기준: docs/design_handoff_deal_app/README.md (Design Tokens)
- * 프라이머리 = 딥 파인 그린 #1F5140 (사내 셋업 문서의 감귤 오렌지는 폐기, 그린으로 확정)
+ * 프라이머리 = 딥 그린 #015233 (사내 셋업 문서의 감귤 오렌지는 폐기, 그린으로 확정)
  * 뉴트럴 = 웜 그레이(살짝 베이지 톤) → tailwind stone 계열 + 아래 페이퍼/라인 토큰 병용
  */
 @theme {
@@ -12,18 +12,18 @@
     system-ui, "Segoe UI", Roboto, "Apple SD Gothic Neo", "Noto Sans KR", sans-serif;
   --font-mono: ui-monospace, SFMono-Regular, "SF Mono", Menlo, Consolas, monospace;
 
-  /* Primary — 딥 파인 그린 램프 */
-  --color-primary-50: #e7efe9;
-  --color-primary-100: #d4e2d8;
-  --color-primary-200: #a9c4b3;
-  --color-primary-300: #7ba692;
-  --color-primary-400: #4c8069;
-  --color-primary-500: #276451;
-  --color-primary-600: #1f5140;
-  --color-primary-700: #1f5140;
-  --color-primary-800: #163a2e;
-  --color-primary-900: #10281f;
-  --color-primary: #1f5140;
+  /* Primary — 딥 그린 램프(#015233 기준) */
+  --color-primary-50: #e6edeb;
+  --color-primary-100: #d1e0da;
+  --color-primary-200: #9ebdb2;
+  --color-primary-300: #6c9a89;
+  --color-primary-400: #397860;
+  --color-primary-500: #1a6347;
+  --color-primary-600: #015233;
+  --color-primary-700: #014b2f;
+  --color-primary-800: #013b25;
+  --color-primary-900: #012d1c;
+  --color-primary: #015233;
 
   /* 웜 페이퍼/서피스/라인 */
   --color-paper: #f7f4ef;
@@ -40,8 +40,8 @@
   --color-ink-400: #8a8478;
   --color-ink-300: #a39d92;
 
-  --color-success-50: #e7efe9;
-  --color-success: #1f5140;
+  --color-success-50: #e6edeb;
+  --color-success: #015233;
 
   --color-danger-50: #fbece9;
   --color-danger: #c0392b;
