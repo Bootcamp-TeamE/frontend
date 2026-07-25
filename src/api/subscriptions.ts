@@ -22,3 +22,7 @@ export async function updateSubscription(
   const { data } = await api.patch<Subscription>(`/subscriptions/${id}`, payload)
   return data
 }
+
+export async function deleteSubscription(id: number): Promise<void> {
+  await api.delete(`/subscriptions/${id}`)
+}

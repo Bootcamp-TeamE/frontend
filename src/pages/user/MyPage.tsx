@@ -56,7 +56,7 @@ export function MyPage() {
         <MenuRow
           to="/subscriptions"
           icon={<BellIcon className="h-5 w-5" />}
-          label="구독 설정"
+          label="구독 관리"
         />
       </div>
 
