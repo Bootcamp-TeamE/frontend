@@ -1,4 +1,4 @@
-import { useMemo, useState } from 'react'
+import { useEffect, useMemo, useState } from 'react'
 import type { ReactNode } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { Button, EmptyState, LoadingScreen } from '../../components'
@@ -32,7 +32,8 @@ export function OwnerSaleNewPage() {
   const [description, setDescription] = useState('')
   const [imageFile, setImageFile] = useState<File | null>(null)
   const [category, setCategory] = useState('')
-  const [unit, setUnit] = useState('') // '' = 매장 카테고리 기본 단위 상속
+  const [unit, setUnit] = useState('')
+  const [initialized, setInitialized] = useState(false)
   const [normal, setNormal] = useState('')
   const [salePrice, setSalePrice] = useState('')
   const [qty, setQty] = useState('')
@@ -45,6 +46,21 @@ export function OwnerSaleNewPage() {
     () => (imageFile ? URL.createObjectURL(imageFile) : null),
     [imageFile],
   )
+
+  // 매장 카테고리·기본 단위를 처음부터 선택된 상태로 프리필(1회). 이후 변경 자유.
+  useEffect(() => {
+    if (initialized || !store || categories.length === 0) return
+    setCategory(store.category_code)
+    setUnit(categories.find((c) => c.code === store.category_code)?.default_unit_code ?? '')
+    setInitialized(true)
+  }, [initialized, store, categories])
+
+  // 카테고리를 바꾸면 단위도 그 카테고리의 기본 단위로 따라간다.
+  const changeCategory = (code: string) => {
+    setCategory(code)
+    const defUnit = categories.find((c) => c.code === code)?.default_unit_code
+    if (defUnit) setUnit(defUnit)
+  }
 
   if (isLoading) return <LoadingScreen />
 
@@ -187,8 +203,7 @@ export function OwnerSaleNewPage() {
         </Field>
         <div className="grid grid-cols-2 gap-4">
           <Field label="카테고리">
-            <select value={category} onChange={(e) => setCategory(e.target.value)} className={inputCls}>
-              <option value="">매장 기본</option>
+            <select value={category} onChange={(e) => changeCategory(e.target.value)} className={inputCls}>
               {categories.map((c) => (
                 <option key={c.code} value={c.code}>
                   {c.name_ko}
@@ -198,7 +213,6 @@ export function OwnerSaleNewPage() {
           </Field>
           <Field label="단위">
             <select value={unit} onChange={(e) => setUnit(e.target.value)} className={inputCls}>
-              <option value="">매장 기본 단위</option>
               {units.map((u) => (
                 <option key={u.code} value={u.code}>
                   {u.name_ko}

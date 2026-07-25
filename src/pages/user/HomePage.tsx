@@ -1,6 +1,7 @@
 import { useMemo, useState } from 'react'
 import { Link } from 'react-router-dom'
 import {
+  Button,
   CategoryFilter,
   EmptyState,
   ListSkeleton,
@@ -136,10 +137,26 @@ export function HomePage() {
         )}
 
         {sorted && sorted.length === 0 && (
-          <EmptyState
-            title="주변에 진행 중인 마감세일이 없어요"
-            description="카테고리를 바꾸거나 잠시 후 다시 확인해 보세요."
-          />
+          <div className="relative overflow-hidden">
+            {/* 은은한 배경 글로우 — 빈 영역 휑함 완화(배경색 변경 아님) */}
+            <div
+              aria-hidden
+              className="pointer-events-none absolute inset-x-0 top-6 flex justify-center"
+            >
+              <div className="h-56 w-56 rounded-full bg-primary-50/70 blur-3xl" />
+            </div>
+            <div className="relative">
+              <EmptyState
+                title="주변에 진행 중인 마감세일이 없어요"
+                description="카테고리를 바꾸거나 반경을 넓혀 보세요."
+                action={
+                  <Link to="/map">
+                    <Button variant="secondary">지도에서 둘러보기</Button>
+                  </Link>
+                }
+              />
+            </div>
+          </div>
         )}
 
         {sorted?.map((sale) => (
