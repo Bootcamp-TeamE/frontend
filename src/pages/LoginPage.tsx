@@ -3,6 +3,7 @@ import { useLocation, useNavigate } from 'react-router-dom'
 import * as authApi from '../api/auth'
 import { useAuthStore } from '../store/authStore'
 import { toast } from '../store'
+import mascot from '../assets/mascot.png'
 
 export default function LoginPage() {
   const navigate = useNavigate()
@@ -22,13 +23,19 @@ export default function LoginPage() {
   }
 
   return (
-    <div className="mx-auto flex min-h-dvh max-w-[430px] flex-col items-center justify-center gap-6 px-6">
-      <h1 className="text-2xl font-bold text-primary">SOLDE</h1>
-      <p className="text-sm text-ink-500">동네 마감세일, 로그인하고 담아보세요</p>
-      <GoogleLogin
-        onSuccess={(c) => c.credential && finish(authApi.google(c.credential))}
-        onError={() => toast('구글 로그인에 실패했습니다')}
-      />
+    <div className="mx-auto flex min-h-dvh max-w-[430px] flex-col items-center justify-center gap-5 px-6">
+      <img src={mascot} alt="" aria-hidden className="h-28 w-auto select-none" />
+      <div className="text-center">
+        <h1 className="text-3xl font-extrabold tracking-tight text-primary">SOLDE</h1>
+        <p className="mt-2 text-[15px] text-ink-600">오늘 마감, 동네에서 담아요</p>
+        <p className="mt-1 text-[13px] text-ink-400">전통시장 마감세일을 로그인하고 예약해 보세요</p>
+      </div>
+      <div className="mt-2">
+        <GoogleLogin
+          onSuccess={(c) => c.credential && finish(authApi.google(c.credential))}
+          onError={() => toast('구글 로그인에 실패했습니다')}
+        />
+      </div>
     </div>
   )
 }

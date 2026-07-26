@@ -7,11 +7,11 @@ import { useLocationStore } from '../../store'
 import { isKakaoKeyConfigured, useKakaoMapLoader } from '../../lib/kakao'
 import { cn } from '../../lib/cn'
 import { categoryColor } from '../../lib/category'
-import { formatDistance } from '../../lib/format'
+import { formatDistance, remainingUntil } from '../../lib/format'
+import { saleUrgency } from '../../lib/sale'
 import type { Category, Sale } from '../../types'
 
 const RADIUS = 2000
-const CLOSING_SOON_MS = 60 * 60 * 1000
 
 interface Cluster {
   key: string
@@ -493,7 +493,7 @@ function SalesPanel({ sales, onClose }: { sales: Sale[]; onClose: () => void }) 
 
 function SaleRow({ sale }: { sale: Sale }) {
   const now = useNow(1000)
-  const soon = new Date(sale.deadline_at).getTime() - now < CLOSING_SOON_MS
+  const urgency = saleUrgency(sale.deadline_at, now)
   const dist = formatDistance(sale.store_distance_m)
   return (
     <Link to={`/sales/${sale.id}`} className="flex items-center gap-3 px-4 py-3 active:bg-paper/60">
@@ -504,9 +504,14 @@ function SaleRow({ sale }: { sale: Sale }) {
           <p className="truncate text-[15px] font-bold text-ink-900">
             {sale.title}
           </p>
-          {soon && (
-            <span className="shrink-0 rounded-full bg-danger-50 px-1.5 py-0.5 text-[10px] font-bold text-danger">
-              마감임박
+          {(urgency === 'urgent' || urgency === 'soon') && (
+            <span
+              className={cn(
+                'shrink-0 rounded-full px-1.5 py-0.5 text-[10px] font-bold tnum',
+                urgency === 'urgent' ? 'animate-pulse bg-danger-50 text-danger' : 'bg-amber-50 text-amber',
+              )}
+            >
+              {remainingUntil(sale.deadline_at, now)}
             </span>
           )}
         </div>

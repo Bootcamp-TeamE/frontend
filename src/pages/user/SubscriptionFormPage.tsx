@@ -151,9 +151,9 @@ export function SubscriptionFormPage() {
 
         <Section title="받을 시간대">
           <div className="flex items-center gap-2">
-            <HourSelect value={from} onChange={setFrom} />
+            <HourSelect value={from} onChange={setFrom} max={to - 1} />
             <span className="text-ink-400">~</span>
-            <HourSelect value={to} onChange={setTo} />
+            <HourSelect value={to} onChange={setTo} min={from + 1} />
           </div>
         </Section>
 
@@ -233,14 +233,24 @@ function Chip({
   )
 }
 
-function HourSelect({ value, onChange }: { value: number; onChange: (v: number) => void }) {
+function HourSelect({
+  value,
+  onChange,
+  min = 0,
+  max = 23,
+}: {
+  value: number
+  onChange: (v: number) => void
+  min?: number
+  max?: number
+}) {
   return (
     <select
       value={value}
       onChange={(e) => onChange(Number(e.target.value))}
       className="rounded-card border border-line-strong bg-surface px-3 py-2.5 text-[14px] font-semibold text-ink-900 focus:border-primary focus:outline-none focus-visible:ring-2 focus-visible:ring-primary/30"
     >
-      {HOURS.map((h) => (
+      {HOURS.filter((h) => h >= min && h <= max).map((h) => (
         <option key={h} value={h}>
           {String(h).padStart(2, '0')}:00
         </option>

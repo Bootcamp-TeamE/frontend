@@ -2,11 +2,9 @@ import { Link } from 'react-router-dom'
 import type { Sale } from '../../types'
 import { cn } from '../../lib/cn'
 import { formatDistance, remainingUntil } from '../../lib/format'
-import { isSoldout } from '../../lib/sale'
+import { isSoldout, saleUrgency } from '../../lib/sale'
 import { SaleThumb } from './SaleThumb'
 import { SalePrice } from './SalePrice'
-
-const CLOSING_SOON_MS = 60 * 60 * 1000
 
 /**
  * 홈 리스트 행(에디토리얼). 흰 서피스 위에 행 구분선으로 이어지는 플랫 로우.
@@ -24,9 +22,8 @@ export function SaleCard({
   now: number
 }) {
   const soldout = isSoldout(sale)
-  const deadlineMs = new Date(sale.deadline_at).getTime()
-  const closed = deadlineMs <= now
-  const closingSoon = !closed && deadlineMs - now < CLOSING_SOON_MS
+  const urgency = saleUrgency(sale.deadline_at, now)
+  const closed = urgency === 'closed'
   const dist = formatDistance(sale.store_distance_m)
   const total = sale.total_quantity || 0
   const remainPct = total > 0 ? Math.max(0, Math.min(100, (sale.remaining_quantity / total) * 100)) : 0
@@ -58,7 +55,7 @@ export function SaleCard({
 
       {/* 우측 메타: 마감임박 / 마감까지 남은 시간 / 남은 수량 게이지 */}
       <div className="flex shrink-0 flex-col items-end gap-1 self-stretch pt-0.5">
-        {closingSoon && (
+        {urgency === 'urgent' && (
           <span className="animate-pulse rounded-full bg-danger-50 px-1.5 py-0.5 text-[10px] font-bold text-danger">
             마감임박
           </span>
@@ -66,7 +63,13 @@ export function SaleCard({
         <span
           className={cn(
             'font-mono text-[13px] font-bold tnum',
-            closed ? 'text-ink-300' : closingSoon ? 'text-danger' : 'text-ink-600',
+            closed
+              ? 'text-ink-300'
+              : urgency === 'urgent'
+                ? 'text-danger'
+                : urgency === 'soon'
+                  ? 'text-amber'
+                  : 'text-ink-600',
           )}
         >
           {closed ? '마감' : remainingUntil(sale.deadline_at, now)}

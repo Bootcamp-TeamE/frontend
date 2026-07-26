@@ -12,12 +12,6 @@ import type { Order, Sale, Store } from '../../types'
 // 결제 후 픽업 마감까지의 시간(백엔드 PICKUP_HOLD_MINUTES와 동일). 지나면 자동 환불.
 const PICKUP_HOLD_MINUTES = 30
 
-const PAY_METHODS = [
-  { key: 'easy', label: '간편결제' },
-  { key: 'card', label: '신용·체크카드' },
-  { key: 'bank', label: '계좌이체' },
-]
-
 // 남은 밀리초 → "27:35" (픽업 창은 30분 이내라 mm:ss로 충분).
 function formatMMSS(ms: number): string {
   const total = Math.max(0, Math.floor(ms / 1000))
@@ -171,7 +165,6 @@ function CheckoutView({
 }) {
   const originalTotal = sale ? sale.normal_price * order.quantity : order.total_price
   const discount = originalTotal - order.total_price
-  const [method, setMethod] = useState('easy')
 
   return (
     <>
@@ -207,27 +200,10 @@ function CheckoutView({
           결제 후 30분 안에 매장에서 픽업해 주세요.
         </div>
 
-        {/* 결제수단 선택(모의) */}
-        <div className="mt-4 rounded-card border border-line-soft bg-surface p-2">
-          <p className="px-2 pb-1 pt-1.5 text-[13px] font-semibold text-ink-900">결제수단</p>
-          {PAY_METHODS.map((m) => (
-            <button
-              key={m.key}
-              type="button"
-              onClick={() => setMethod(m.key)}
-              className="flex w-full items-center justify-between rounded-lg px-2 py-2.5 text-left active:bg-paper"
-            >
-              <span className="text-[14px] text-ink-800">{m.label}</span>
-              <span
-                className={cn(
-                  'flex h-5 w-5 items-center justify-center rounded-full border-2',
-                  method === m.key ? 'border-primary' : 'border-line-strong',
-                )}
-              >
-                {method === m.key && <span className="h-2.5 w-2.5 rounded-full bg-primary" />}
-              </span>
-            </button>
-          ))}
+        {/* 결제수단 (데모: 간편결제 고정) */}
+        <div className="mt-4 flex items-center justify-between rounded-card border border-line-soft bg-surface px-4 py-3.5">
+          <span className="text-[13px] font-semibold text-ink-900">결제수단</span>
+          <span className="text-[14px] text-ink-800">간편결제</span>
         </div>
 
         {error && <p className="mt-3 text-center text-sm text-danger">{error}</p>}

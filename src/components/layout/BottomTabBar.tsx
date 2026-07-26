@@ -33,7 +33,7 @@ export function BottomTabBar() {
                 <span className="relative">
                   <Icon className="h-6 w-6" />
                   {badge && unread > 0 && (
-                    <span className="absolute -right-1.5 -top-1 min-w-4 rounded-full bg-danger px-1 text-[10px] font-bold leading-4 text-white">
+                    <span className="absolute -right-2 -top-1 flex h-4 min-w-4 items-center justify-center rounded-full bg-danger px-1 text-[10px] font-bold leading-none text-white ring-2 ring-white">
                       {unread > 99 ? '99+' : unread}
                     </span>
                   )}

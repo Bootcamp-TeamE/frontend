@@ -29,9 +29,8 @@ import { toast, useAuthStore, useLocationStore, useRecentStore } from '../../sto
 import { categoryTint } from '../../lib/category'
 import { resolveImageUrl } from '../../lib/image'
 import { cn } from '../../lib/cn'
-import { formatDistance, formatWon, remainingUntil } from '../../lib/format'
-
-const CLOSING_SOON_MS = 60 * 60 * 1000
+import { formatDistance, formatHHmm, formatWon, remainingUntil } from '../../lib/format'
+import { saleUrgency } from '../../lib/sale'
 
 export function SaleDetailPage() {
   const { id } = useParams()
@@ -88,7 +87,7 @@ export function SaleDetailPage() {
     categories.find((c) => c.code === sale.category_code)?.name_ko ?? sale.category_code
   const unitLabel = units.find((u) => u.code === sale.unit_code)?.name_ko ?? '개'
   const countdown = remainingUntil(sale.deadline_at, now)
-  const closingSoon = !!countdown && new Date(sale.deadline_at).getTime() - now < CLOSING_SOON_MS
+  const urgency = saleUrgency(sale.deadline_at, now)
   const soldout =
     sale.status !== 'active' || sale.remaining_quantity < sale.min_order || !countdown
 
@@ -225,9 +224,26 @@ export function SaleDetailPage() {
 
         {/* 마감 카운트다운 배너 */}
         {countdown && (
-          <div className="mt-4 flex items-center justify-between rounded-card bg-danger-50 px-4 py-3">
-            <span className="text-[13px] font-semibold text-danger">마감까지</span>
-            <span className="font-mono text-[18px] font-bold tracking-[1px] text-danger tnum">
+          <div
+            className={cn(
+              'mt-4 flex items-center justify-between rounded-card px-4 py-3',
+              urgency === 'urgent' ? 'bg-danger-50' : urgency === 'soon' ? 'bg-amber-50' : 'bg-paper',
+            )}
+          >
+            <span
+              className={cn(
+                'text-[13px] font-semibold',
+                urgency === 'urgent' ? 'text-danger' : urgency === 'soon' ? 'text-amber' : 'text-ink-600',
+              )}
+            >
+              마감까지
+            </span>
+            <span
+              className={cn(
+                'font-mono text-[18px] font-bold tracking-[1px] tnum',
+                urgency === 'urgent' ? 'text-danger' : urgency === 'soon' ? 'text-amber' : 'text-ink-900',
+              )}
+            >
               {countdown}
             </span>
           </div>
@@ -237,7 +253,7 @@ export function SaleDetailPage() {
         <div className="mt-4 space-y-2.5">
           <div className="flex items-center gap-2 text-[13px] text-ink-600">
             <ClockIcon className="h-[18px] w-[18px] text-ink-400" />
-            픽업 가능 시간 · {sale.pickup_window ?? '매장 운영시간 내'}
+            픽업 가능 시간 · {sale.pickup_window ?? `결제 후 마감 ${formatHHmm(sale.deadline_at)}까지`}
           </div>
           <div className="flex items-center gap-2 text-[13px] text-ink-600">
             <BoxIcon className="h-[18px] w-[18px] text-ink-400" />
@@ -256,7 +272,7 @@ export function SaleDetailPage() {
             <QuantityStepper value={qty} min={sale.min_order} max={maxQty} onChange={setQty} />
           </div>
         )}
-        {closingSoon && !soldout && (
+        {urgency === 'urgent' && !soldout && (
           <p className="mt-3 text-[12px] text-danger">마감이 얼마 남지 않았어요. 서둘러 예약해 주세요.</p>
         )}
       </div>
