@@ -1,5 +1,5 @@
 import { Link } from 'react-router-dom'
-import { Badge, Button, Skeleton } from '../../components'
+import { Badge, Button, EmptyState, Skeleton } from '../../components'
 import {
   useDashboard,
   useDashboardStream,
@@ -44,12 +44,15 @@ export function OwnerDashboardPage() {
         <h2 className="text-lg font-bold text-ink-900">등록한 마감세일</h2>
         <div className="mt-3 overflow-hidden rounded-card-lg border border-line bg-surface">
           {sales && sales.length === 0 && (
-            <p className="px-5 py-12 text-center text-sm text-ink-400">
-              아직 등록한 세일이 없어요.{' '}
-              <Link to="/owner/sales/new" className="font-semibold text-primary">
-                세일 등록하기
-              </Link>
-            </p>
+            <EmptyState
+              title="아직 등록한 세일이 없어요"
+              description="첫 마감세일을 등록해 손님에게 알려보세요."
+              action={
+                <Link to="/owner/sales/new">
+                  <Button size="sm">세일 등록하기</Button>
+                </Link>
+              }
+            />
           )}
           {sales?.map((sale) => <SaleAdminRow key={sale.id} sale={sale} />)}
         </div>

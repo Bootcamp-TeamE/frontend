@@ -184,11 +184,15 @@ export function HomePage() {
         {!showRecent && isLoading && <ListSkeleton count={4} />}
 
         {!showRecent && isError && (
-          <p className="py-16 text-center text-sm text-danger">
-            데이터를 불러오지 못했어요.
-            <br />
-            <span className="text-xs text-ink-400">{(error as Error)?.message}</span>
-          </p>
+          <EmptyState
+            title="데이터를 불러오지 못했어요"
+            description={(error as Error)?.message ?? '잠시 후 다시 시도해 주세요.'}
+            action={
+              <Button variant="secondary" onClick={() => refetch()}>
+                다시 시도
+              </Button>
+            }
+          />
         )}
 
         {!showRecent && sorted && sorted.length === 0 && (

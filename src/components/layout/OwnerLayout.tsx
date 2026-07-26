@@ -5,7 +5,7 @@ const navItems = [
   { to: '/owner/dashboard', label: '판매 모니터링' },
   { to: '/owner/store', label: '매장 관리' },
   { to: '/owner/sales/new', label: '세일 등록' },
-  { to: '/owner/scan', label: 'QR 확인' },
+  { to: '/owner/scan', label: '픽업번호 확인' },
 ]
 
 export function OwnerLayout() {

@@ -16,9 +16,9 @@ export function OwnerScanPage() {
 
   return (
     <div className="max-w-xl">
-      <h1 className="text-2xl font-extrabold text-ink-900">QR 확인</h1>
+      <h1 className="text-2xl font-extrabold text-ink-900">픽업번호 확인</h1>
       <p className="mt-1 text-sm text-ink-500">
-        손님의 픽업번호(또는 QR 토큰)를 입력해 주문을 확인하고 픽업 처리해요.
+        손님의 픽업번호를 입력해 주문을 확인하고 픽업 처리해요.
       </p>
 
       <div className="mt-6 flex gap-2">
@@ -42,7 +42,7 @@ export function OwnerScanPage() {
         )}
 
         {isError && submitted && (
-          <div className="rounded-card-lg border border-danger-50 bg-danger-50 px-5 py-4 text-sm text-danger">
+          <div className="rounded-card-lg border border-danger/30 bg-danger-50 px-5 py-4 text-sm text-danger">
             {(error as Error)?.message ?? '주문을 찾을 수 없어요.'}
           </div>
         )}

@@ -23,7 +23,7 @@ import { useLocationStore } from '../../store'
 import { isKakaoKeyConfigured, useKakaoMapLoader } from '../../lib/kakao'
 import { categoryTint } from '../../lib/category'
 import { cn } from '../../lib/cn'
-import { formatHHmm } from '../../lib/format'
+import { remainingUntil } from '../../lib/format'
 import { isSoldout } from '../../lib/sale'
 import type { Sale } from '../../types'
 
@@ -117,7 +117,9 @@ export function StoreDetailPage() {
             <p className="mt-1.5 flex items-center gap-1 text-[13px] text-ink-600">
               <HeartIcon className="h-4 w-4 text-danger" filled />
               <span className="font-bold text-ink-900">관심 {store.favorite_count ?? 0}</span>
-              {latest && <span className="text-ink-400"> · 오늘 {formatHHmm(latest)} 마감</span>}
+              {latest && remainingUntil(latest, now) && (
+                <span className="text-ink-400"> · 마감까지 {remainingUntil(latest, now)}</span>
+              )}
             </p>
           </div>
           <button

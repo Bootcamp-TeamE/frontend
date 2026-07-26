@@ -12,7 +12,6 @@ import {
 } from '../../components'
 import { useFavorites, useOrders } from '../../hooks'
 import { useAuthStore } from '../../store'
-import mascot from '../../assets/mascot.png'
 
 export function MyPage() {
   const user = useAuthStore((s) => s.user)
@@ -56,12 +55,6 @@ export function MyPage() {
               </>
             )}
           </div>
-          <img
-            src={mascot}
-            alt=""
-            aria-hidden
-            className="-mb-4 -mr-1 ml-auto h-[72px] w-auto shrink-0 select-none"
-          />
         </div>
 
         {/* 점주 센터 — 점주일 때만 노출되는 모드 전환 진입로 */}
