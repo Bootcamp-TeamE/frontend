@@ -1,9 +1,10 @@
 import { Fragment, type ComponentType } from 'react'
-import { useNavigate } from 'react-router-dom'
+import { Link, useNavigate } from 'react-router-dom'
 import { BellIcon, BoxIcon, CheckIcon, ClockIcon, EmptyState, ListSkeleton, TopBar } from '../../components'
 import { useInfiniteScroll, useMarkAllRead, useMarkRead, useNotifications, useNow } from '../../hooks'
 import { cn } from '../../lib/cn'
 import { formatRelative } from '../../lib/format'
+import { useAuthStore } from '../../store'
 import type { Notification } from '../../types'
 
 // 타입별 문구 + 구분색·아이콘. 결제=초록 / 픽업=파랑 / 환불=빨강 / 구독매칭=앰버
@@ -50,6 +51,7 @@ function dayLabel(iso: string, now: number): string {
 }
 
 export function NotificationsPage() {
+  const token = useAuthStore((s) => s.accessToken)
   const now = useNow(30000)
   const { data: items, isLoading } = useNotifications()
   const markRead = useMarkRead()
@@ -86,7 +88,22 @@ export function NotificationsPage() {
         }
       />
 
-      {isLoading && (
+      {!token && (
+        <EmptyState
+          title="로그인이 필요합니다"
+          description="로그인하면 결제·픽업·근처 마감세일 알림을 받아볼 수 있어요."
+          action={
+            <Link
+              to="/login"
+              className="inline-flex items-center rounded-lg bg-primary px-4 py-2 text-[13px] font-semibold text-white"
+            >
+              로그인하기
+            </Link>
+          }
+        />
+      )}
+
+      {token && isLoading && (
         <div className="bg-surface px-5">
           <ListSkeleton count={5} avatar="circle" meta={false} />
         </div>
