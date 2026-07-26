@@ -31,20 +31,12 @@ export default function LoginPage() {
         onError={() => toast('구글 로그인에 실패했습니다')}
       />
       {devEnabled && (
-        <div className="flex gap-2">
-          <button
-            className="rounded-lg border px-3 py-2 text-sm"
-            onClick={() => finish(authApi.devLogin('buyer@solde.demo'))}
-          >
-            데모 구매자
-          </button>
-          <button
-            className="rounded-lg border px-3 py-2 text-sm"
-            onClick={() => finish(authApi.devLogin('owner@solde.demo'))}
-          >
-            데모 점주
-          </button>
-        </div>
+        <button
+          onClick={() => finish(authApi.devLogin('owner@solde.demo'))}
+          className="text-[13px] font-medium text-ink-400 underline decoration-line-strong underline-offset-4 transition-colors active:text-ink-600"
+        >
+          점주 화면 둘러보기
+        </button>
       )}
     </div>
   )
