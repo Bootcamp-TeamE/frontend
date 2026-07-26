@@ -27,7 +27,7 @@ export function MyPage() {
 
   const doLogout = () => {
     logout()
-    navigate('/login')
+    navigate('/')
   }
 
   return (
@@ -40,8 +40,17 @@ export function MyPage() {
           <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-full bg-primary-50 text-primary">
             <UserIcon className="h-6 w-6" />
           </div>
-          <div className="min-w-0">
-            <p className="truncate text-[15px] font-bold text-ink-900">{user?.name ?? '내 계정'}</p>
+          <div className="min-w-0 flex-1">
+            {user ? (
+              <p className="truncate text-[15px] font-bold text-ink-900">{user.name ?? '내 계정'}</p>
+            ) : (
+              <>
+                <p className="text-[15px] font-bold text-ink-900">로그인이 필요합니다</p>
+                <Link to="/login" className="mt-0.5 inline-block text-[13px] font-semibold text-primary">
+                  로그인하기
+                </Link>
+              </>
+            )}
           </div>
           <img
             src={mascot}
@@ -85,14 +94,16 @@ export function MyPage() {
           <MenuRow to="/subscriptions" icon={<BellIcon className="h-5 w-5" />} label="구독 관리" />
         </div>
 
-        {/* 로그아웃 — 보조 액션이라 절제된 무게 */}
-        <button
-          onClick={doLogout}
-          className="mt-5 flex w-full items-center justify-center gap-1.5 py-3 text-[13px] font-medium text-ink-400 transition-colors active:text-ink-600"
-        >
-          <LogoutIcon className="h-4 w-4" />
-          로그아웃
-        </button>
+        {/* 로그아웃 — 보조 액션이라 절제된 무게. 로그인 상태에서만 노출 */}
+        {user && (
+          <button
+            onClick={doLogout}
+            className="mt-5 flex w-full items-center justify-center gap-1.5 py-3 text-[13px] font-medium text-ink-400 transition-colors active:text-ink-600"
+          >
+            <LogoutIcon className="h-4 w-4" />
+            로그아웃
+          </button>
+        )}
       </div>
 
       {/* 브랜드 푸터 — 하단 여백을 닫아준다 */}

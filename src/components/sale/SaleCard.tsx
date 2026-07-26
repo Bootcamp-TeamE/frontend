@@ -1,7 +1,7 @@
 import { Link } from 'react-router-dom'
 import type { Sale } from '../../types'
 import { cn } from '../../lib/cn'
-import { formatDistance, formatHHmm } from '../../lib/format'
+import { formatDistance, remainingUntil } from '../../lib/format'
 import { isSoldout } from '../../lib/sale'
 import { SaleThumb } from './SaleThumb'
 import { SalePrice } from './SalePrice'
@@ -56,7 +56,7 @@ export function SaleCard({
         </div>
       </div>
 
-      {/* 우측 메타: 마감임박 / 마감시각 / 남은 수량 게이지 */}
+      {/* 우측 메타: 마감임박 / 마감까지 남은 시간 / 남은 수량 게이지 */}
       <div className="flex shrink-0 flex-col items-end gap-1 self-stretch pt-0.5">
         {closingSoon && (
           <span className="animate-pulse rounded-full bg-danger-50 px-1.5 py-0.5 text-[10px] font-bold text-danger">
@@ -69,7 +69,7 @@ export function SaleCard({
             closed ? 'text-ink-300' : closingSoon ? 'text-danger' : 'text-ink-600',
           )}
         >
-          {closed ? '마감' : formatHHmm(sale.deadline_at)}
+          {closed ? '마감' : remainingUntil(sale.deadline_at, now)}
         </span>
         <div className="mt-auto flex flex-col items-end gap-1">
           <span className="text-[12px] text-ink-400">

@@ -25,18 +25,12 @@ function App() {
     <Routes>
       <Route path="/login" element={<LoginPage />} />
 
-      {/* 유저 - 하단 탭 루트 (공개) */}
+      {/* 유저 - 하단 탭 루트 (공개). 알림·마이는 미로그인 시 페이지가 직접 안내(리다이렉트 X) */}
       <Route element={<MobileLayout />}>
         <Route path="/" element={<HomePage />} />
         <Route path="/map" element={<MapPage />} />
-      </Route>
-
-      {/* 유저 - 하단 탭 루트 (로그인 필요) */}
-      <Route element={<RequireAuth />}>
-        <Route element={<MobileLayout />}>
-          <Route path="/notifications" element={<NotificationsPage />} />
-          <Route path="/my" element={<MyPage />} />
-        </Route>
+        <Route path="/notifications" element={<NotificationsPage />} />
+        <Route path="/my" element={<MyPage />} />
       </Route>
 
       {/* 유저 - 밀려 들어오는 상세 화면 (탭바 없음, 공개) */}
