@@ -140,18 +140,20 @@ export function OrdersPage() {
         <EmptyState title={EMPTY_MSG[tab]} />
       )}
 
-      <div className={cn('bg-surface px-5', selected.size > 0 && 'pb-28')}>
-        {filtered?.map((o) => (
-          <OrderRow
-            key={o.id}
-            order={o}
-            selectable={CANCELLABLE.includes(o.status)}
-            checked={selected.has(o.id)}
-            onToggle={() => toggle(o.id)}
-            now={now}
-          />
-        ))}
-      </div>
+      {filtered && filtered.length > 0 && (
+        <div className={cn('bg-surface px-5', selected.size > 0 && 'pb-28')}>
+          {filtered.map((o) => (
+            <OrderRow
+              key={o.id}
+              order={o}
+              selectable={CANCELLABLE.includes(o.status)}
+              checked={selected.has(o.id)}
+              onToggle={() => toggle(o.id)}
+              now={now}
+            />
+          ))}
+        </div>
+      )}
 
       {/* 선택 취소 벌크 바 */}
       {selected.size > 0 && (

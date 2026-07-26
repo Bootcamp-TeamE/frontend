@@ -54,16 +54,18 @@ export function SubscriptionsPage() {
         />
       )}
 
-      <div className="space-y-3 px-5 py-3">
-        {subs?.map((sub) => (
-          <SubscriptionCard
-            key={sub.id}
-            sub={sub}
-            catName={catName}
-            onDelete={() => setTarget(sub)}
-          />
-        ))}
-      </div>
+      {subs && subs.length > 0 && (
+        <div className="space-y-3 px-5 py-3">
+          {subs.map((sub) => (
+            <SubscriptionCard
+              key={sub.id}
+              sub={sub}
+              catName={catName}
+              onDelete={() => setTarget(sub)}
+            />
+          ))}
+        </div>
+      )}
 
       <Sheet
         open={!!target}
