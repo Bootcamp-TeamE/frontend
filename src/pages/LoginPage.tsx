@@ -10,7 +10,6 @@ export default function LoginPage() {
   // 로그인 유도 전 있던 페이지로 복귀. 없으면 역할별 기본 화면.
   const from = (location.state as { from?: string } | null)?.from
   const login = useAuthStore((s) => s.login)
-  const devEnabled = import.meta.env.VITE_DEV_LOGIN === 'true'
 
   async function finish(p: Promise<Awaited<ReturnType<typeof authApi.google>>>) {
     try {
@@ -30,14 +29,6 @@ export default function LoginPage() {
         onSuccess={(c) => c.credential && finish(authApi.google(c.credential))}
         onError={() => toast('구글 로그인에 실패했습니다')}
       />
-      {devEnabled && (
-        <button
-          onClick={() => finish(authApi.devLogin('owner@solde.demo'))}
-          className="text-[13px] font-medium text-ink-400 underline decoration-line-strong underline-offset-4 transition-colors active:text-ink-600"
-        >
-          점주 화면 둘러보기
-        </button>
-      )}
     </div>
   )
 }
