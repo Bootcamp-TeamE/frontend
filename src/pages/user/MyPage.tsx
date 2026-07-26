@@ -6,6 +6,7 @@ import {
   ChevronRightIcon,
   HeartIcon,
   LogoutIcon,
+  StoreIcon,
   TopBar,
   UserIcon,
 } from '../../components'
@@ -52,6 +53,23 @@ export function MyPage() {
             className="-mb-4 -mr-1 ml-auto h-[72px] w-auto shrink-0 select-none"
           />
         </div>
+
+        {/* 점주 센터 — 점주일 때만 노출되는 모드 전환 진입로 */}
+        {user?.role === 'owner' && (
+          <Link
+            to="/owner"
+            className="mt-4 flex items-center gap-3 rounded-card-lg bg-primary p-4 text-white transition-transform active:scale-[0.99]"
+          >
+            <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-white/15">
+              <StoreIcon className="h-5 w-5" />
+            </span>
+            <div className="min-w-0 flex-1">
+              <p className="text-[15px] font-bold">점주 센터</p>
+              <p className="mt-0.5 text-[12px] text-white/80">내 매장 · 대시보드 관리</p>
+            </div>
+            <ChevronRightIcon className="h-5 w-5 text-white/70" />
+          </Link>
+        )}
 
         {/* 메뉴 카드 */}
         <div className="mt-4 overflow-hidden rounded-card-lg bg-surface">
