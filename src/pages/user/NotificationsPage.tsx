@@ -95,6 +95,7 @@ export function NotificationsPage() {
           action={
             <Link
               to="/login"
+              state={{ from: '/notifications' }}
               className="inline-flex items-center rounded-lg bg-primary px-4 py-2 text-[13px] font-semibold text-white"
             >
               로그인하기

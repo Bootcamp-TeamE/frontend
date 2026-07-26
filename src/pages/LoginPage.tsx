@@ -7,7 +7,7 @@ import { toast } from '../store'
 export default function LoginPage() {
   const navigate = useNavigate()
   const location = useLocation()
-  // 로그인 유도 전 있던 페이지로 복귀. 없으면 역할별 기본 화면.
+  // 로그인 유도 전 있던 페이지로 복귀. 없으면 홈. (점주도 대시보드로 튀지 않고 이전 페이지 유지)
   const from = (location.state as { from?: string } | null)?.from
   const login = useAuthStore((s) => s.login)
 
@@ -15,7 +15,7 @@ export default function LoginPage() {
     try {
       const { access_token, user } = await p
       login(access_token, user)
-      navigate(from ?? (user.role === 'owner' ? '/owner' : '/'), { replace: true })
+      navigate(from ?? '/', { replace: true })
     } catch (e) {
       toast(e instanceof Error ? e.message : '로그인에 실패했습니다')
     }
