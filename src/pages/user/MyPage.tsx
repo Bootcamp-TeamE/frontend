@@ -46,7 +46,11 @@ export function MyPage() {
             ) : (
               <>
                 <p className="text-[15px] font-bold text-ink-900">로그인이 필요합니다</p>
-                <Link to="/login" className="mt-0.5 inline-block text-[13px] font-semibold text-primary">
+                <Link
+                  to="/login"
+                  state={{ from: '/my' }}
+                  className="mt-0.5 inline-block text-[13px] font-semibold text-primary"
+                >
                   로그인하기
                 </Link>
               </>
