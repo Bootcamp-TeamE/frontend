@@ -1,5 +1,6 @@
 import { create } from 'zustand'
 import { persist } from 'zustand/middleware'
+import { queryClient } from '../lib/queryClient'
 
 export type Role = 'user' | 'owner'
 
@@ -23,7 +24,10 @@ export const useAuthStore = create<AuthState>()(
       accessToken: null,
       user: null,
       login: (accessToken, user) => set({ accessToken, user }),
-      logout: () => set({ accessToken: null, user: null }),
+      logout: () => {
+        queryClient.clear()
+        set({ accessToken: null, user: null })
+      },
     }),
     { name: 'lts-auth' },
   ),
