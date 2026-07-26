@@ -41,10 +41,7 @@ export function MyPage() {
             <UserIcon className="h-6 w-6" />
           </div>
           <div className="min-w-0">
-            <p className="truncate text-[15px] font-bold text-ink-900">
-              {user?.name ?? user?.email}
-            </p>
-            <p className="mt-0.5 truncate text-[12px] text-ink-400">{user?.email}</p>
+            <p className="truncate text-[15px] font-bold text-ink-900">{user?.name ?? '내 계정'}</p>
           </div>
           <img
             src={mascot}
