@@ -70,7 +70,7 @@ export function NotificationsPage() {
   }
 
   return (
-    <div className="bg-paper">
+    <div className="flex min-h-full flex-col bg-paper">
       <TopBar
         title="알림"
         back={false}
@@ -92,13 +92,16 @@ export function NotificationsPage() {
         </div>
       )}
 
-      {items && items.length === 0 && (
-        <EmptyState
-          title="아직 알림이 없어요"
-          description="결제 완료·근처 마감세일 소식이 여기에 표시돼요."
-        />
+      {!isLoading && items && items.length === 0 && (
+        <div className="flex flex-1 items-center justify-center">
+          <EmptyState
+            title="아직 알림이 없어요"
+            description="결제 완료·근처 마감세일 소식이 여기에 표시돼요."
+          />
+        </div>
       )}
 
+      {items && items.length > 0 && (
       <div className="bg-surface">
         {visible.map((n, i) => {
           const meta = META[n.type]
@@ -142,6 +145,7 @@ export function NotificationsPage() {
           </div>
         )}
       </div>
+      )}
     </div>
   )
 }
