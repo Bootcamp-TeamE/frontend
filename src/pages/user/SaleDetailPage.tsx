@@ -25,7 +25,7 @@ import {
   useToggleFavorite,
   useUnits,
 } from '../../hooks'
-import { toast, useAuthStore, useLocationStore, useRecentStore } from '../../store'
+import { toast, useLocationStore, useRecentStore } from '../../store'
 import { categoryTint } from '../../lib/category'
 import { resolveImageUrl } from '../../lib/image'
 import { cn } from '../../lib/cn'
@@ -37,7 +37,6 @@ export function SaleDetailPage() {
   const { id } = useParams()
   const saleId = Number(id)
   const navigate = useNavigate()
-  const userId = useAuthStore((s) => s.userId)
   const origin = useLocationStore()
   const now = useNow(1000)
 
@@ -48,8 +47,8 @@ export function SaleDetailPage() {
   const createOrder = useCreateOrder()
 
   const [qtyRaw, setQty] = useState<number | null>(null)
-  const { ids: favoriteIds } = useFavorites(userId)
-  const toggleFavorite = useToggleFavorite(userId)
+  const { ids: favoriteIds } = useFavorites()
+  const toggleFavorite = useToggleFavorite()
   const liked = sale?.store_id != null && favoriteIds.has(sale.store_id)
   const { copy } = useCopy()
   const addRecent = useRecentStore((s) => s.add)
@@ -118,7 +117,7 @@ export function SaleDetailPage() {
 
   const reserve = () =>
     createOrder.mutate(
-      { user_id: userId, sale_id: saleId, quantity: qty },
+      { sale_id: saleId, quantity: qty },
       { onSuccess: (order) => navigate(`/orders/${order.id}`) },
     )
 

@@ -8,7 +8,7 @@ import {
   useSubscriptions,
   useUpdateSubscription,
 } from '../../hooks'
-import { useAuthStore, useLocationStore } from '../../store'
+import { useLocationStore } from '../../store'
 import { categoryColor } from '../../lib/category'
 import { cn } from '../../lib/cn'
 
@@ -20,9 +20,8 @@ export function SubscriptionFormPage() {
   const { id } = useParams()
   const editId = id ? Number(id) : null
   const navigate = useNavigate()
-  const userId = useAuthStore((s) => s.userId)
   const { lat, lng } = useLocationStore()
-  const { data: subs, isLoading } = useSubscriptions(userId)
+  const { data: subs, isLoading } = useSubscriptions()
   const { data: categories = [] } = useCategories()
   const create = useCreateSubscription()
   const update = useUpdateSubscription()
@@ -89,7 +88,7 @@ export function SubscriptionFormPage() {
     }
     const back = () => navigate('/subscriptions')
     if (editId != null) update.mutate({ id: editId, payload }, { onSuccess: back })
-    else create.mutate({ user_id: userId, lat, lng, ...payload }, { onSuccess: back })
+    else create.mutate({ lat, lng, ...payload }, { onSuccess: back })
   }
 
   const saving = create.isPending || update.isPending

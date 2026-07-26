@@ -6,19 +6,19 @@ import { useAuthStore } from '../../store'
 import mascot from '../../assets/mascot.png'
 
 export function MyPage() {
-  const userId = useAuthStore((s) => s.userId)
-  const setRole = useAuthStore((s) => s.setRole)
+  const user = useAuthStore((s) => s.user)
+  const logout = useAuthStore((s) => s.logout)
   const navigate = useNavigate()
-  const { data: orders } = useOrders(userId)
-  const { data: favorites } = useFavorites(userId)
+  const { data: orders } = useOrders()
+  const { data: favorites } = useFavorites()
 
   const activeCount =
     orders?.filter((o) => o.status === 'reserved' || o.status === 'paid').length ?? 0
   const favoriteCount = favorites?.length ?? 0
 
-  const goOwner = () => {
-    setRole('owner')
-    navigate('/owner/dashboard')
+  const doLogout = () => {
+    logout()
+    navigate('/login')
   }
 
   return (
@@ -32,8 +32,8 @@ export function MyPage() {
             <UserIcon className="h-6 w-6" />
           </div>
           <div>
-            <p className="text-[15px] font-bold text-ink-900">사용자 #{userId}</p>
-            <p className="mt-0.5 text-[12px] text-ink-400">로그인 연동 전 데모 계정</p>
+            <p className="text-[15px] font-bold text-ink-900">{user?.name ?? user?.email}</p>
+            <p className="mt-0.5 text-[12px] text-ink-400">{user?.email}</p>
           </div>
           <img
             src={mascot}
@@ -65,17 +65,13 @@ export function MyPage() {
         />
       </div>
 
-      {/* 점주 전환 */}
+      {/* 로그아웃 */}
       <div className="mt-6 px-5">
         <button
-          onClick={goOwner}
-          className="flex w-full items-center justify-between rounded-card border border-line-strong bg-surface px-4 py-4 text-left"
+          onClick={doLogout}
+          className="flex w-full items-center justify-center rounded-card border border-line-strong bg-surface px-4 py-4 text-[14px] font-semibold text-ink-600"
         >
-          <div>
-            <p className="text-[14px] font-semibold text-ink-900">점주센터로 전환</p>
-            <p className="mt-0.5 text-[12px] text-ink-400">내 매장의 마감세일을 등록·관리해요.</p>
-          </div>
-          <ChevronRightIcon className="h-5 w-5 text-ink-300" />
+          로그아웃
         </button>
       </div>
     </div>

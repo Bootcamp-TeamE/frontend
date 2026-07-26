@@ -7,16 +7,14 @@ import {
   useStoreSales,
   useUpdateSale,
 } from '../../hooks'
-import { useAuthStore } from '../../store'
 import { cn } from '../../lib/cn'
 import { formatHHmm, formatWon } from '../../lib/format'
 import type { Sale } from '../../types'
 
 export function OwnerDashboardPage() {
-  const ownerId = useAuthStore((s) => s.ownerId)
-  useDashboardStream(ownerId)
-  const { data: dash, isLoading } = useDashboard(ownerId)
-  const { data: store } = useMyStore(ownerId)
+  useDashboardStream()
+  const { data: dash, isLoading } = useDashboard()
+  const { data: store } = useMyStore()
   const { data: sales } = useStoreSales(store?.id)
 
   return (

@@ -11,7 +11,7 @@ import {
   TopBar,
 } from '../../components'
 import { useCancelOrder, useNow, useOrders, useSale } from '../../hooks'
-import { toast, useAuthStore } from '../../store'
+import { toast } from '../../store'
 import { ORDER_STATUS_LABEL, ORDER_STATUS_TONE } from '../../lib/order'
 import { cn } from '../../lib/cn'
 import { formatWon } from '../../lib/format'
@@ -54,9 +54,8 @@ const EMPTY_MSG: Record<TabKey, string> = {
 }
 
 export function OrdersPage() {
-  const userId = useAuthStore((s) => s.userId)
   const now = useNow(1000)
-  const { data: orders, isLoading } = useOrders(userId)
+  const { data: orders, isLoading } = useOrders()
   const sorted = orders ? [...orders].sort((a, b) => b.id - a.id) : undefined
 
   const [tab, setTab] = useState<TabKey>('waiting')

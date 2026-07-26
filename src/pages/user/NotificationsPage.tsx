@@ -2,7 +2,6 @@ import { Fragment, type ComponentType } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { BellIcon, BoxIcon, CheckIcon, ClockIcon, EmptyState, ListSkeleton, TopBar } from '../../components'
 import { useInfiniteScroll, useMarkAllRead, useMarkRead, useNotifications, useNow } from '../../hooks'
-import { useAuthStore } from '../../store'
 import { cn } from '../../lib/cn'
 import { formatRelative } from '../../lib/format'
 import type { Notification } from '../../types'
@@ -51,9 +50,8 @@ function dayLabel(iso: string, now: number): string {
 }
 
 export function NotificationsPage() {
-  const userId = useAuthStore((s) => s.userId)
   const now = useNow(30000)
-  const { data: items, isLoading } = useNotifications(userId)
+  const { data: items, isLoading } = useNotifications()
   const markRead = useMarkRead()
   const markAllRead = useMarkAllRead()
   const navigate = useNavigate()
@@ -79,7 +77,7 @@ export function NotificationsPage() {
         right={
           hasUnread ? (
             <button
-              onClick={() => markAllRead.mutate(userId)}
+              onClick={() => markAllRead.mutate()}
               className="inline-flex items-center rounded-lg px-2 py-2 text-[13px] font-semibold text-primary hover:bg-primary-50"
             >
               모두 읽음

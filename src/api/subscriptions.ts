@@ -8,10 +8,8 @@ export async function createSubscription(
   return data
 }
 
-export async function listSubscriptions(userId: number): Promise<Subscription[]> {
-  const { data } = await api.get<Subscription[]>('/subscriptions', {
-    params: { user_id: userId },
-  })
+export async function listSubscriptions(): Promise<Subscription[]> {
+  const { data } = await api.get<Subscription[]>('/subscriptions')
   return data
 }
 

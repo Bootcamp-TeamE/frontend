@@ -1,3 +1,4 @@
+export * as authApi from './auth'
 export * as catalogApi from './catalog'
 export * as marketsApi from './markets'
 export * as storesApi from './stores'

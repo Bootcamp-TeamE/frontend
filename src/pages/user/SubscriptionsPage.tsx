@@ -2,15 +2,13 @@ import { useMemo, useState } from 'react'
 import { Link } from 'react-router-dom'
 import { Button, EmptyState, LoadingScreen, Sheet, TopBar } from '../../components'
 import { useCategories, useDeleteSubscription, useSubscriptions } from '../../hooks'
-import { useAuthStore } from '../../store'
 import { formatWon } from '../../lib/format'
 import type { Subscription } from '../../types'
 
 const pad = (h: number) => String(h).padStart(2, '0')
 
 export function SubscriptionsPage() {
-  const userId = useAuthStore((s) => s.userId)
-  const { data: subs, isLoading } = useSubscriptions(userId)
+  const { data: subs, isLoading } = useSubscriptions()
   const { data: categories = [] } = useCategories()
   const del = useDeleteSubscription()
 

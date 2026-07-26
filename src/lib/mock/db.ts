@@ -292,7 +292,8 @@ export function createSubscription(payload: SubscriptionCreate): Subscription {
   subSeq += 1
   const sub: Subscription = {
     id: subSeq,
-    user_id: payload.user_id,
+    // 실서버는 토큰으로 신원 판단 → SubscriptionCreate.user_id 제거됨. 목 데이터는 데모 유저(1)로 귀속.
+    user_id: 1,
     categories: payload.categories,
     lat: payload.lat,
     lng: payload.lng,

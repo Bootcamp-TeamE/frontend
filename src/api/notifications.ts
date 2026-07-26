@@ -1,20 +1,15 @@
 import { api } from '../lib/axios'
 import type { Notification } from '../types'
 
-export async function listNotifications(
-  userId: number,
-  unread = false,
-): Promise<Notification[]> {
+export async function listNotifications(unread = false): Promise<Notification[]> {
   const { data } = await api.get<Notification[]>('/notifications', {
-    params: { user_id: userId, unread },
+    params: { unread },
   })
   return data
 }
 
-export async function getUnreadCount(userId: number): Promise<number> {
-  const { data } = await api.get<{ count: number }>('/notifications/unread-count', {
-    params: { user_id: userId },
-  })
+export async function getUnreadCount(): Promise<number> {
+  const { data } = await api.get<{ count: number }>('/notifications/unread-count')
   return data.count
 }
 
@@ -23,9 +18,7 @@ export async function markRead(id: number): Promise<Notification> {
   return data
 }
 
-export async function markAllRead(userId: number): Promise<number> {
-  const { data } = await api.patch<{ updated: number }>('/notifications/read-all', null, {
-    params: { user_id: userId },
-  })
+export async function markAllRead(): Promise<number> {
+  const { data } = await api.patch<{ updated: number }>('/notifications/read-all')
   return data.updated
 }
