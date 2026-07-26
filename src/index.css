@@ -1,1 +1,97 @@
+@import "pretendard/dist/web/variable/pretendardvariable.css";
 @import "tailwindcss";
+
+/*
+ * 마감할인 — 디자인 토큰
+ * 기준: docs/design_handoff_deal_app/README.md (Design Tokens)
+ * 프라이머리 = 딥 그린 #015233 (사내 셋업 문서의 감귤 오렌지는 폐기, 그린으로 확정)
+ * 뉴트럴 = 웜 그레이(살짝 베이지 톤) → tailwind stone 계열 + 아래 페이퍼/라인 토큰 병용
+ */
+@theme {
+  --font-sans: "Pretendard Variable", Pretendard, -apple-system, BlinkMacSystemFont,
+    system-ui, "Segoe UI", Roboto, "Apple SD Gothic Neo", "Noto Sans KR", sans-serif;
+  --font-mono: ui-monospace, SFMono-Regular, "SF Mono", Menlo, Consolas, monospace;
+
+  /* Primary — 딥 그린 램프(#015233 기준) */
+  --color-primary-50: #e6edeb;
+  --color-primary-100: #d1e0da;
+  --color-primary-200: #9ebdb2;
+  --color-primary-300: #6c9a89;
+  --color-primary-400: #397860;
+  --color-primary-500: #1a6347;
+  --color-primary-600: #015233;
+  --color-primary-700: #014b2f;
+  --color-primary-800: #013b25;
+  --color-primary-900: #012d1c;
+  --color-primary: #015233;
+
+  /* 웜 페이퍼/서피스/라인 */
+  --color-paper: #f7f4ef;
+  --color-surface: #ffffff;
+  --color-line: #ece7dd;
+  --color-line-soft: #f1ede5;
+  --color-line-strong: #e7e2d9;
+
+  /* Ink — 웜 블랙 텍스트 램프 */
+  --color-ink-900: #1b1a17;
+  --color-ink-700: #47423b;
+  --color-ink-600: #5c5750;
+  --color-ink-500: #726c62;
+  --color-ink-400: #8a8478;
+  --color-ink-300: #a39d92;
+
+  --color-success-50: #e6edeb;
+  --color-success: #015233;
+
+  --color-danger-50: #fbece9;
+  --color-danger: #c0392b;
+
+  --color-info: #2f6df0;
+
+  /* 앰버 — 알림 '구독 매칭(새 세일)' 구분색 */
+  --color-amber-50: #fbeed2;
+  --color-amber: #a86a12;
+
+  --radius-card: 1rem; /* 16px */
+  --radius-card-lg: 1.25rem; /* 20px 큰 카드 */
+  --radius-pill: 9999px; /* 칩/필터 pill */
+  --radius-thumb: 0.75rem; /* 12px 썸네일 */
+
+  --shadow-overlay: 0 8px 28px rgba(20, 19, 15, 0.2);
+  --shadow-chip: 0 2px 8px rgba(20, 19, 15, 0.1);
+  --shadow-card: 0 8px 28px rgba(20, 19, 15, 0.12);
+  --shadow-sheet: 0 -6px 28px rgba(20, 19, 15, 0.18);
+  --shadow-sheet-soft: 0 -6px 18px rgba(20, 19, 15, 0.05); /* 홈 리스트 시트 상단 seam 완화 */
+  --shadow-locator: 0 0 0 6px rgba(47, 109, 240, 0.25);
+}
+
+@layer base {
+  html {
+    -webkit-tap-highlight-color: transparent;
+  }
+  body {
+    @apply bg-paper font-sans text-ink-900 antialiased;
+  }
+}
+
+@layer utilities {
+  /* 가격·카운트다운·픽업번호 등 숫자 정렬 */
+  .tnum {
+    font-variant-numeric: tabular-nums;
+  }
+  .no-scrollbar {
+    scrollbar-width: none;
+    -ms-overflow-style: none;
+  }
+  .no-scrollbar::-webkit-scrollbar {
+    display: none;
+  }
+  /* 이미지 없는 카테고리 썸네일 — 대각 줄무늬 질감(모노 라벨과 함께) */
+  .thumb-stripe {
+    background-image: repeating-linear-gradient(
+      135deg,
+      rgba(255, 255, 255, 0.28) 0 1px,
+      transparent 1px 9px
+    );
+  }
+}
