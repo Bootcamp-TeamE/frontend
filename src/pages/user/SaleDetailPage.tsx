@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react'
-import { Link, useNavigate, useParams } from 'react-router-dom'
+import { Link, useLocation, useNavigate, useParams } from 'react-router-dom'
 import {
   Button,
   BoxIcon,
@@ -25,7 +25,7 @@ import {
   useToggleFavorite,
   useUnits,
 } from '../../hooks'
-import { toast, useLocationStore, useRecentStore } from '../../store'
+import { toast, useAuthStore, useLocationStore, useRecentStore } from '../../store'
 import { categoryTint } from '../../lib/category'
 import { resolveImageUrl } from '../../lib/image'
 import { cn } from '../../lib/cn'
@@ -37,6 +37,8 @@ export function SaleDetailPage() {
   const { id } = useParams()
   const saleId = Number(id)
   const navigate = useNavigate()
+  const location = useLocation()
+  const accessToken = useAuthStore((s) => s.accessToken)
   const origin = useLocationStore()
   const now = useNow(1000)
 
@@ -115,11 +117,18 @@ export function SaleDetailPage() {
     window.open(`https://map.kakao.com/link/from/${from}/to/${to}`, '_blank', 'noopener')
   }
 
-  const reserve = () =>
+  const reserve = () => {
+    // 비로그인 예약: 튕기지 말고 로그인 유도 후 이 상품으로 복귀.
+    if (!accessToken) {
+      toast('로그인이 필요합니다')
+      navigate('/login', { state: { from: location.pathname + location.search } })
+      return
+    }
     createOrder.mutate(
       { sale_id: saleId, quantity: qty },
       { onSuccess: (order) => navigate(`/orders/${order.id}`) },
     )
+  }
 
   return (
     <>

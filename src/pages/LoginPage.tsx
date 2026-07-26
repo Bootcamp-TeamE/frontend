@@ -1,11 +1,14 @@
 import { GoogleLogin } from '@react-oauth/google'
-import { useNavigate } from 'react-router-dom'
+import { useLocation, useNavigate } from 'react-router-dom'
 import * as authApi from '../api/auth'
 import { useAuthStore } from '../store/authStore'
 import { toast } from '../store'
 
 export default function LoginPage() {
   const navigate = useNavigate()
+  const location = useLocation()
+  // 로그인 유도 전 있던 페이지로 복귀. 없으면 역할별 기본 화면.
+  const from = (location.state as { from?: string } | null)?.from
   const login = useAuthStore((s) => s.login)
   const devEnabled = import.meta.env.VITE_DEV_LOGIN === 'true'
 
@@ -13,7 +16,7 @@ export default function LoginPage() {
     try {
       const { access_token, user } = await p
       login(access_token, user)
-      navigate(user.role === 'owner' ? '/owner' : '/', { replace: true })
+      navigate(from ?? (user.role === 'owner' ? '/owner' : '/'), { replace: true })
     } catch (e) {
       toast(e instanceof Error ? e.message : '로그인에 실패했습니다')
     }
