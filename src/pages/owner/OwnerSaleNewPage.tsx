@@ -3,7 +3,6 @@ import type { ReactNode } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { Button, EmptyState, LoadingScreen } from '../../components'
 import { useCategories, useCreateSale, useMyStore, useUnits, useUploadImage } from '../../hooks'
-import { useAuthStore } from '../../store'
 import { formatWon } from '../../lib/format'
 import { cn } from '../../lib/cn'
 
@@ -20,9 +19,8 @@ function toLocalInput(date: Date): string {
 }
 
 export function OwnerSaleNewPage() {
-  const ownerId = useAuthStore((s) => s.ownerId)
   const navigate = useNavigate()
-  const { data: store, isLoading } = useMyStore(ownerId)
+  const { data: store, isLoading } = useMyStore()
   const { data: categories = [] } = useCategories()
   const { data: units = [] } = useUnits()
   const create = useCreateSale(store?.id ?? 0)

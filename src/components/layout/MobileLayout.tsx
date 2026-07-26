@@ -1,13 +1,10 @@
 import { Outlet } from 'react-router-dom'
 import { BottomTabBar } from './BottomTabBar'
-import { DevRoleSwitcher } from '../DevRoleSwitcher'
 import { Toaster } from '../Toaster'
 import { useNotificationStream } from '../../hooks'
-import { useAuthStore } from '../../store'
 
 export function MobileLayout() {
-  const userId = useAuthStore((s) => s.userId)
-  useNotificationStream(userId)
+  useNotificationStream()
 
   return (
     <div className="mx-auto flex min-h-screen w-full max-w-[430px] flex-col bg-white shadow-sm">
@@ -16,7 +13,6 @@ export function MobileLayout() {
       </main>
       <BottomTabBar />
       <Toaster />
-      <DevRoleSwitcher />
     </div>
   )
 }

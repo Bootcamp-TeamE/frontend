@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react'
-import { Link, useNavigate, useParams } from 'react-router-dom'
+import { Link, useLocation, useNavigate, useParams } from 'react-router-dom'
 import {
   Button,
   BoxIcon,
@@ -37,7 +37,8 @@ export function SaleDetailPage() {
   const { id } = useParams()
   const saleId = Number(id)
   const navigate = useNavigate()
-  const userId = useAuthStore((s) => s.userId)
+  const location = useLocation()
+  const accessToken = useAuthStore((s) => s.accessToken)
   const origin = useLocationStore()
   const now = useNow(1000)
 
@@ -48,8 +49,8 @@ export function SaleDetailPage() {
   const createOrder = useCreateOrder()
 
   const [qtyRaw, setQty] = useState<number | null>(null)
-  const { ids: favoriteIds } = useFavorites(userId)
-  const toggleFavorite = useToggleFavorite(userId)
+  const { ids: favoriteIds } = useFavorites()
+  const toggleFavorite = useToggleFavorite()
   const liked = sale?.store_id != null && favoriteIds.has(sale.store_id)
   const { copy } = useCopy()
   const addRecent = useRecentStore((s) => s.add)
@@ -116,11 +117,18 @@ export function SaleDetailPage() {
     window.open(`https://map.kakao.com/link/from/${from}/to/${to}`, '_blank', 'noopener')
   }
 
-  const reserve = () =>
+  const reserve = () => {
+    // 비로그인 예약: 튕기지 말고 로그인 유도 후 이 상품으로 복귀.
+    if (!accessToken) {
+      toast('로그인이 필요합니다')
+      navigate('/login', { state: { from: location.pathname + location.search } })
+      return
+    }
     createOrder.mutate(
-      { user_id: userId, sale_id: saleId, quantity: qty },
+      { sale_id: saleId, quantity: qty },
       { onSuccess: (order) => navigate(`/orders/${order.id}`) },
     )
+  }
 
   return (
     <>

@@ -2,15 +2,13 @@ import { useMemo, useState } from 'react'
 import { Link } from 'react-router-dom'
 import { Button, EmptyState, LoadingScreen, Sheet, TopBar } from '../../components'
 import { useCategories, useDeleteSubscription, useSubscriptions } from '../../hooks'
-import { useAuthStore } from '../../store'
 import { formatWon } from '../../lib/format'
 import type { Subscription } from '../../types'
 
 const pad = (h: number) => String(h).padStart(2, '0')
 
 export function SubscriptionsPage() {
-  const userId = useAuthStore((s) => s.userId)
-  const { data: subs, isLoading } = useSubscriptions(userId)
+  const { data: subs, isLoading } = useSubscriptions()
   const { data: categories = [] } = useCategories()
   const del = useDeleteSubscription()
 
@@ -56,16 +54,18 @@ export function SubscriptionsPage() {
         />
       )}
 
-      <div className="space-y-3 px-5 py-3">
-        {subs?.map((sub) => (
-          <SubscriptionCard
-            key={sub.id}
-            sub={sub}
-            catName={catName}
-            onDelete={() => setTarget(sub)}
-          />
-        ))}
-      </div>
+      {subs && subs.length > 0 && (
+        <div className="space-y-3 px-5 py-3">
+          {subs.map((sub) => (
+            <SubscriptionCard
+              key={sub.id}
+              sub={sub}
+              catName={catName}
+              onDelete={() => setTarget(sub)}
+            />
+          ))}
+        </div>
+      )}
 
       <Sheet
         open={!!target}

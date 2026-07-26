@@ -129,7 +129,6 @@ export interface Dashboard {
 // ── 요청 페이로드 ──
 
 export interface OrderCreate {
-  user_id: number
   sale_id: number
   quantity?: number
 }
@@ -141,7 +140,6 @@ export interface StoreCreate {
   lng: number
   market_id?: number | null
   address?: string | null
-  owner_id?: number | null
 }
 
 export interface SaleCreate {
@@ -163,7 +161,6 @@ export interface SaleUpdate {
 }
 
 export interface SubscriptionCreate {
-  user_id: number
   categories: string[]
   lat: number
   lng: number
@@ -176,4 +173,4 @@ export interface SubscriptionCreate {
   opted_out?: boolean
 }
 
-export type SubscriptionUpdate = Partial<Omit<SubscriptionCreate, 'user_id'>>
+export type SubscriptionUpdate = Partial<SubscriptionCreate>

@@ -1,27 +1,33 @@
 import { create } from 'zustand'
 import { persist } from 'zustand/middleware'
+import { queryClient } from '../lib/queryClient'
 
-export type Role = 'buyer' | 'owner'
+export type Role = 'user' | 'owner'
 
-// 로그인 전 stub. 로그인(JWT) 붙일 때 이 store만 교체한다.
-interface AuthState {
+export interface AuthUser {
+  id: number
+  email: string
+  name: string | null
   role: Role
-  userId: number
-  ownerId: number
-  setRole: (role: Role) => void
-  setUserId: (userId: number) => void
-  setOwnerId: (ownerId: number) => void
+}
+
+interface AuthState {
+  accessToken: string | null
+  user: AuthUser | null
+  login: (token: string, user: AuthUser) => void
+  logout: () => void
 }
 
 export const useAuthStore = create<AuthState>()(
   persist(
     (set) => ({
-      role: 'buyer',
-      userId: 1,
-      ownerId: 1,
-      setRole: (role) => set({ role }),
-      setUserId: (userId) => set({ userId }),
-      setOwnerId: (ownerId) => set({ ownerId }),
+      accessToken: null,
+      user: null,
+      login: (accessToken, user) => set({ accessToken, user }),
+      logout: () => {
+        queryClient.clear()
+        set({ accessToken: null, user: null })
+      },
     }),
     { name: 'lts-auth' },
   ),

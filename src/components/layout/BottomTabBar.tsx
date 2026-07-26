@@ -1,6 +1,5 @@
 import { NavLink } from 'react-router-dom'
 import { BellIcon, HomeIcon, MapIcon, UserIcon } from '../icons'
-import { useAuthStore } from '../../store'
 import { useUnreadCount } from '../../hooks'
 import { cn } from '../../lib/cn'
 
@@ -12,8 +11,7 @@ const tabs = [
 ]
 
 export function BottomTabBar() {
-  const userId = useAuthStore((s) => s.userId)
-  const { data: unread = 0 } = useUnreadCount(userId)
+  const { data: unread = 0 } = useUnreadCount()
 
   return (
     <nav className="fixed bottom-0 left-1/2 z-30 w-full max-w-[430px] -translate-x-1/2 border-t border-stone-200 bg-white/95 backdrop-blur">

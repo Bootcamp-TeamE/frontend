@@ -6,8 +6,8 @@ export async function createOrder(payload: OrderCreate): Promise<Order> {
   return data
 }
 
-export async function listOrders(userId: number): Promise<Order[]> {
-  const { data } = await api.get<Order[]>('/orders', { params: { user_id: userId } })
+export async function listOrders(): Promise<Order[]> {
+  const { data } = await api.get<Order[]>('/orders')
   return data
 }
 

@@ -11,7 +11,7 @@ import {
   TopBar,
 } from '../../components'
 import { useCancelOrder, useNow, useOrders, useSale } from '../../hooks'
-import { toast, useAuthStore } from '../../store'
+import { toast } from '../../store'
 import { ORDER_STATUS_LABEL, ORDER_STATUS_TONE } from '../../lib/order'
 import { cn } from '../../lib/cn'
 import { formatWon } from '../../lib/format'
@@ -54,9 +54,8 @@ const EMPTY_MSG: Record<TabKey, string> = {
 }
 
 export function OrdersPage() {
-  const userId = useAuthStore((s) => s.userId)
   const now = useNow(1000)
-  const { data: orders, isLoading } = useOrders(userId)
+  const { data: orders, isLoading } = useOrders()
   const sorted = orders ? [...orders].sort((a, b) => b.id - a.id) : undefined
 
   const [tab, setTab] = useState<TabKey>('waiting')
@@ -141,18 +140,20 @@ export function OrdersPage() {
         <EmptyState title={EMPTY_MSG[tab]} />
       )}
 
-      <div className={cn('bg-surface px-5', selected.size > 0 && 'pb-28')}>
-        {filtered?.map((o) => (
-          <OrderRow
-            key={o.id}
-            order={o}
-            selectable={CANCELLABLE.includes(o.status)}
-            checked={selected.has(o.id)}
-            onToggle={() => toggle(o.id)}
-            now={now}
-          />
-        ))}
-      </div>
+      {filtered && filtered.length > 0 && (
+        <div className={cn('bg-surface px-5', selected.size > 0 && 'pb-28')}>
+          {filtered.map((o) => (
+            <OrderRow
+              key={o.id}
+              order={o}
+              selectable={CANCELLABLE.includes(o.status)}
+              checked={selected.has(o.id)}
+              onToggle={() => toggle(o.id)}
+              now={now}
+            />
+          ))}
+        </div>
+      )}
 
       {/* 선택 취소 벌크 바 */}
       {selected.size > 0 && (

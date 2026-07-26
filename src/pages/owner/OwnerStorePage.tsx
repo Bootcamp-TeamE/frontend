@@ -2,15 +2,14 @@ import { useEffect, useState } from 'react'
 import type { ReactNode } from 'react'
 import { Button, LoadingScreen } from '../../components'
 import { useCategories, useCreateStore, useMyStore, useUpdateStore } from '../../hooks'
-import { useAuthStore, useLocationStore } from '../../store'
+import { useLocationStore } from '../../store'
 
 const inputCls =
   'w-full rounded-card border border-line-strong bg-surface px-4 py-3 text-[15px] text-ink-900 placeholder:text-ink-300 focus:border-primary focus:outline-none focus-visible:ring-2 focus-visible:ring-primary/30'
 
 export function OwnerStorePage() {
-  const ownerId = useAuthStore((s) => s.ownerId)
   const { lat, lng } = useLocationStore()
-  const { data: store, isLoading } = useMyStore(ownerId)
+  const { data: store, isLoading } = useMyStore()
   const { data: categories = [] } = useCategories()
   const create = useCreateStore()
   const update = useUpdateStore()
@@ -41,9 +40,9 @@ export function OwnerStorePage() {
     if (store) {
       update.mutate({ id: store.id, payload }, { onSuccess: () => setSaved(true) })
     } else {
-      // owner_id를 실어야 등록 매장이 점주에 귀속돼 대시보드에 잡힌다(1계정=1매장).
+      // 등록 매장은 토큰의 점주 신원으로 서버가 귀속시킨다(1계정=1매장).
       create.mutate(
-        { ...payload, lat, lng, owner_id: ownerId },
+        { ...payload, lat, lng },
         { onSuccess: () => setSaved(true) },
       )
     }

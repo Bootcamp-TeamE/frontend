@@ -1,5 +1,4 @@
 import { NavLink, Outlet } from 'react-router-dom'
-import { DevRoleSwitcher } from '../DevRoleSwitcher'
 import { cn } from '../../lib/cn'
 
 const navItems = [
@@ -41,7 +40,6 @@ export function OwnerLayout() {
       <main className="mx-auto max-w-6xl px-6 py-8">
         <Outlet />
       </main>
-      <DevRoleSwitcher />
     </div>
   )
 }

@@ -2,13 +2,16 @@ import { useMemo } from 'react'
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import { favoritesApi } from '../api'
 import type { Store } from '../types'
+import { useAuthStore } from '../store'
 import { qk } from './queryKeys'
 
-export function useFavorites(userId: number) {
+export function useFavorites() {
+  const userId = useAuthStore((s) => s.user?.id)
+  const enabled = useAuthStore((s) => !!s.accessToken)
   const query = useQuery({
-    queryKey: qk.favorites(userId),
-    queryFn: () => favoritesApi.listFavorites(userId),
-    enabled: !!userId,
+    queryKey: qk.favorites(userId ?? 0),
+    queryFn: () => favoritesApi.listFavorites(),
+    enabled,
   })
   // 하트 상태 판정을 위한 store_id 집합.
   const ids = useMemo(
@@ -20,13 +23,14 @@ export function useFavorites(userId: number) {
 
 // 하트 토글. 관심 수(store.favorite_count)는 낙관적으로 ±1 반영하고,
 // 하트 상태(favorites 목록)와 정확한 수치는 onSettled 무효화로 서버와 확정한다.
-export function useToggleFavorite(userId: number) {
+export function useToggleFavorite() {
+  const userId = useAuthStore((s) => s.user?.id)
   const queryClient = useQueryClient()
   return useMutation({
     mutationFn: ({ storeId, favorited }: { storeId: number; favorited: boolean }) =>
       favorited
-        ? favoritesApi.removeFavorite(storeId, userId)
-        : favoritesApi.addFavorite(storeId, userId),
+        ? favoritesApi.removeFavorite(storeId)
+        : favoritesApi.addFavorite(storeId),
     onMutate: async ({ storeId, favorited }) => {
       await queryClient.cancelQueries({ queryKey: qk.store(storeId) })
       const prev = queryClient.getQueryData<Store>(qk.store(storeId))
@@ -42,7 +46,7 @@ export function useToggleFavorite(userId: number) {
       if (ctx?.prev) queryClient.setQueryData(qk.store(storeId), ctx.prev)
     },
     onSettled: (_data, _err, { storeId }) => {
-      queryClient.invalidateQueries({ queryKey: qk.favorites(userId) })
+      queryClient.invalidateQueries({ queryKey: qk.favorites(userId ?? 0) })
       queryClient.invalidateQueries({ queryKey: qk.store(storeId) })
     },
   })

@@ -1,13 +1,16 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import { subscriptionsApi } from '../api'
 import type { SubscriptionCreate, SubscriptionUpdate } from '../types'
+import { useAuthStore } from '../store'
 import { qk } from './queryKeys'
 
-export function useSubscriptions(userId: number) {
+export function useSubscriptions() {
+  const userId = useAuthStore((s) => s.user?.id)
+  const enabled = useAuthStore((s) => !!s.accessToken)
   return useQuery({
-    queryKey: qk.subscriptions(userId),
-    queryFn: () => subscriptionsApi.listSubscriptions(userId),
-    enabled: !!userId,
+    queryKey: qk.subscriptions(userId ?? 0),
+    queryFn: () => subscriptionsApi.listSubscriptions(),
+    enabled,
   })
 }
 

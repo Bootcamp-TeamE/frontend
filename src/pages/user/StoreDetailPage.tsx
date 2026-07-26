@@ -19,7 +19,7 @@ import {
   useToggleFavorite,
   useUnits,
 } from '../../hooks'
-import { useAuthStore, useLocationStore } from '../../store'
+import { useLocationStore } from '../../store'
 import { isKakaoKeyConfigured, useKakaoMapLoader } from '../../lib/kakao'
 import { categoryTint } from '../../lib/category'
 import { cn } from '../../lib/cn'
@@ -31,7 +31,6 @@ export function StoreDetailPage() {
   const { id } = useParams()
   const storeId = Number(id)
   const navigate = useNavigate()
-  const userId = useAuthStore((s) => s.userId)
   const origin = useLocationStore()
   const now = useNow(1000)
 
@@ -39,8 +38,8 @@ export function StoreDetailPage() {
   const { data: sales = [] } = useStoreSales(storeId)
   const { data: categories = [] } = useCategories()
   const { data: units = [] } = useUnits()
-  const { ids: favoriteIds } = useFavorites(userId)
-  const toggleFavorite = useToggleFavorite(userId)
+  const { ids: favoriteIds } = useFavorites()
+  const toggleFavorite = useToggleFavorite()
   const liked = favoriteIds.has(storeId)
 
   if (isLoading) {

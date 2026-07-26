@@ -1,15 +1,13 @@
 import { Link } from 'react-router-dom'
 import { Card, EmptyState, HeartIcon, ListSkeleton, TopBar } from '../../components'
 import { useCategories, useFavorites, useStoreSales, useToggleFavorite } from '../../hooks'
-import { useAuthStore } from '../../store'
 import { categoryTint } from '../../lib/category'
 import { cn } from '../../lib/cn'
 import { formatHHmm } from '../../lib/format'
 import type { Store } from '../../types'
 
 export function FavoritesPage() {
-  const userId = useAuthStore((s) => s.userId)
-  const { data: stores, isLoading } = useFavorites(userId)
+  const { data: stores, isLoading } = useFavorites()
 
   return (
     <>
@@ -26,15 +24,15 @@ export function FavoritesPage() {
         />
       )}
       <div className="space-y-2 px-5 py-3">
-        {stores?.map((store) => <FavoriteRow key={store.id} store={store} userId={userId} />)}
+        {stores?.map((store) => <FavoriteRow key={store.id} store={store} />)}
       </div>
     </>
   )
 }
 
-function FavoriteRow({ store, userId }: { store: Store; userId: number }) {
+function FavoriteRow({ store }: { store: Store }) {
   const { data: categories = [] } = useCategories()
-  const toggle = useToggleFavorite(userId)
+  const toggle = useToggleFavorite()
   const { data: sales = [] } = useStoreSales(store.id)
   const catLabel =
     categories.find((c) => c.code === store.category_code)?.name_ko ?? store.category_code

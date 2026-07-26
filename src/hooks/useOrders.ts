@@ -1,13 +1,16 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import { ordersApi } from '../api'
 import type { OrderCreate } from '../types'
+import { useAuthStore } from '../store'
 import { qk } from './queryKeys'
 
-export function useOrders(userId: number) {
+export function useOrders() {
+  const userId = useAuthStore((s) => s.user?.id)
+  const enabled = useAuthStore((s) => !!s.accessToken)
   return useQuery({
-    queryKey: qk.orders(userId),
-    queryFn: () => ordersApi.listOrders(userId),
-    enabled: !!userId,
+    queryKey: qk.orders(userId ?? 0),
+    queryFn: () => ordersApi.listOrders(),
+    enabled,
   })
 }
 
