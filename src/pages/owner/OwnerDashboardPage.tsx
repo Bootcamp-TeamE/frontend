@@ -1,5 +1,5 @@
 import { Link } from 'react-router-dom'
-import { Badge, Button, EmptyState, Skeleton } from '../../components'
+import { Badge, Button, EmptyState, SaleThumb, Skeleton } from '../../components'
 import {
   useDashboard,
   useDashboardStream,
@@ -36,7 +36,7 @@ export function OwnerDashboardPage() {
         <StatCard label="진행 중 세일" value={dash && `${dash.active_sales}`} unit="건" loading={isLoading} />
         <StatCard label="오늘 주문" value={dash && `${dash.today_orders}`} unit="건" loading={isLoading} />
         <StatCard label="오늘 매출" value={dash && formatWon(dash.today_revenue)} highlight loading={isLoading} />
-        <StatCard label="도달 수" value={dash && `${dash.total_reach}`} unit="명" loading={isLoading} />
+        <StatCard label="알림 발송" value={dash && `${dash.total_reach}`} unit="건" loading={isLoading} />
       </div>
 
       {/* 세일 목록 */}
@@ -106,6 +106,7 @@ function SaleAdminRow({ sale }: { sale: Sale }) {
 
   return (
     <div className="flex items-center gap-4 border-b border-line-soft px-5 py-4 last:border-0">
+      <SaleThumb sale={sale} size="sm" />
       <div className="min-w-0 flex-1">
         <div className="flex items-center gap-2">
           <p className="truncate text-[15px] font-semibold text-ink-900">{sale.title}</p>
