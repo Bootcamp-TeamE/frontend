@@ -36,6 +36,7 @@ export function useDashboardStream() {
     const es = createEventSource('/owner/dashboard/stream', { token })
     es.onmessage = () => {
       queryClient.invalidateQueries({ queryKey: ['dashboard'] })
+      queryClient.invalidateQueries({ queryKey: ['store-sales'] })
     }
     return () => es.close()
   }, [token, queryClient])
